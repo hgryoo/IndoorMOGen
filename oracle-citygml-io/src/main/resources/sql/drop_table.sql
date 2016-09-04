@@ -1,0 +1,16 @@
+DROP TABLE BuildingOpening;
+DROP TABLE BuildingBoundary;
+DROP TABLE RoomInstallation;
+DROP TABLE Room;
+DROP TABLE BuildingInstallation;
+DROP TABLE Building;
+DROP TABLE Generalization;
+DROP TABLE CityObjectMember;
+DROP TABLE CityObject;
+DROP TABLE CityModel;
+DROP TABLE Address;
+DROP TABLE Envelope;
+DROP SEQUENCE Envelope_id_seq;
+DROP SEQUENCE CityModel_id_seq;
+DROP SEQUENCE CityObject_id_seq;
+DROP SEQUENCE ADDRESS_id_seq;

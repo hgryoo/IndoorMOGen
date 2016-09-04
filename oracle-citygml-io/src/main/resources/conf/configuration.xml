@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="true" /> 
+		<setting name="lazyLoadingEnabled" value="true" /> 
+		<setting name="multipleResultSetsEnabled" value="true" />
+	</settings>
+	<typeAliases>
+		<typeAlias type="edu.pnu.mybatis.DBCPDataSourceFactory" alias="DBCP" />
+		<package name="net.opengis.citygml.v_2_0.vo"/>
+	</typeAliases>
+	<typeHandlers>
+	</typeHandlers>	
+	<environments default="development">
+		<environment id="development">
+			<transactionManager type="JDBC" />
+			<dataSource type="DBCP">
+				<property name="driverClassName" value="${driver}" />
+				<property name="url" value="${url}" />
+				<property name="username" value="${username}" />
+				<property name="password" value="${password}" />
+			</dataSource>
+		</environment>
+	</environments>
+	<mappers>
+		<!-- Geometry Mapper -->
+		<mapper resource="net/opengis/citygml/v_2_0/dao/spatial/EnvelopeMapper.xml"/>
+		
+		<!-- Core Module Mapper -->
+		<mapper resource="net/opengis/citygml/v_2_0/dao/core/CityModelMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/core/CityObjectMapper.xml"/>
+		
+		<!-- Building Module Mapper -->
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/BuildingMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/RoomMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/BuildingInstallationMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/RoomInstallationMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/BuildingBoundaryMapper.xml"/>
+		<mapper resource="net/opengis/citygml/v_2_0/dao/building/BuildingOpeningMapper.xml"/>
+		
+		
+		
+	</mappers>
+</configuration>

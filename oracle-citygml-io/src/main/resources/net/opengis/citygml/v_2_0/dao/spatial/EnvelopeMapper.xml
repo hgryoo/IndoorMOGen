@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.opengis.citygml.v_2_0">
+
+	<resultMap type="Envelope" id="EnvelopeResultMap">
+		<id property="id" column="ID" />
+        <result property="srsName" column="SRS_NAME" />
+        <result property="srsDimension" column="SRS_DIMENSION" />
+        <result property="lowerCorner" column="LOWER_CORNER" javaType="[B"/>
+        <result property="upperCorner" column="UPPER_CORNER" javaType="[B"/>
+    </resultMap>
+    
+     <insert 
+		id="insertEnvelope"
+		parameterType="Envelope"
+		flushCache="true"
+		useGeneratedKeys="true"
+	>
+    	INSERT INTO Envelope (SRS_NAME, SRS_DIMENSION, LOWER_CORNER, UPPER_CORNER)
+		VALUES
+		(
+			#{srsName},
+			#{srsDimension},
+			SDO_UTIL.FROM_WKBGEOMETRY(#{lowerCorner}),
+			SDO_UTIL.FROM_WKBGEOMETRY(#{upperCorner})
+		)
+		<selectKey keyProperty="id" keyColumn="ID" resultType="int">
+			SELECT max(ID) FROM Envelope
+     	</selectKey>
+     </insert>
+     
+	<select
+     	id="selectEnvelope"
+     	resultMap="EnvelopeResultMap"
+     	parameterType="int"
+     >
+     	SELECT
+     		ID, SRS_NAME, SRS_DIMENSION, 
+     		ST_ASBINARY(LOWER_CORNER) AS LOWER_CORNER, ST_ASBINARY(UPPER_CORNER) AS UPPER_CORNER
+     	FROM Envelope
+     	WHERE ID = #{id}
+     </select>
+     
+</mapper>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.opengis.citygml.v_2_0">
+
+     <resultMap type="Building" id="BuildingResultMap" extends="CityObjectResultMap">
+		<id property="id" column="ID" />
+		
+		<!-- Attributes -->
+		<result property="clazz" column="CLAZZ" />
+        <result property="classCodeSpace" column="CLASS_CODESPACE" />
+        <result property="func" column="FUNC" />
+        <result property="funcCodeSpace" column="FUNC_CODESPACE" />
+        <result property="usage" column="USAGE" />
+        <result property="usageCodeSpace" column="USAGE_CODESPACE" />
+        
+        <result property="yearOfConstruction" column="YEAR_OF_CONSTRUCTION" />
+        <result property="yearOfDemolition" column="YEAR_OF_DEMOLITION" />
+        <result property="roofType" column="ROOF_TYPE" />
+        <result property="roofTypeCodeSpace" column="ROOF_TYPE_CODESPACE" />
+        <result property="measuredHeight" column="MEASURED_HEIGHT" />
+        <result property="measuredHeightUnit" column="MEASURED_HEIGHT_UNIT" />
+        
+        <result property="storeysAboveGround" column="STOREYS_ABOVE_GROUND" />
+        <result property="storeysBelowGround" column="STOREYS_BELOW_GROUND" />
+        <result property="storeyHeightsAboveGround" column="STOREY_HEIGHTS_ABOVE_GROUND" />
+        <result property="storeyHeightsAboveUnit" column="STOREY_HEIGHTS_ABOVE_UNIT" />
+        <result property="storeyHeightsBelowGround" column="STOREY_HEIGHTS_BELOW_GROUND" />
+        <result property="storeyHeightsBelowUnit" column="STOREY_HEIGHTS_BELOW_UNIT" />
+        
+        <!-- Geomeries -->
+        <result property="lod1Solid" column="LOD1SOLID" javaType="[B" />
+        <result property="lod2Solid" column="LOD2SOLID" javaType="[B" />
+        <result property="lod3Solid" column="LOD3SOLID" javaType="[B" />
+        <result property="lod4Solid" column="LOD4SOLID" javaType="[B" />
+        
+        <result property="lod1MultiSurface" column="LOD1MULTISURFACE" javaType="[B" />
+        <result property="lod2MultiSurface" column="LOD2MULTISURFACE" javaType="[B" />
+        <result property="lod3MultiSurface" column="LOD3MULTISURFACE" javaType="[B" />
+        <result property="lod4MultiSurface" column="LOD4MULTISURFACE" javaType="[B" />
+        
+        <result property="lod2MultiCurve" column="LOD2MULTICURVE" javaType="[B" />
+        <result property="lod3MultiCurve" column="LOD3MULTICURVE" javaType="[B" />
+        <result property="lod4MultiCurve" column="LOD4MULTICURVE" javaType="[B" />
+        
+        <result property="lod1TerrainIntersection" column="LOD1TERRAININTERSECTION" javaType="[B" />
+        <result property="lod2TerrainIntersection" column="LOD2TERRAININTERSECTION" javaType="[B" />
+        <result property="lod3TerrainIntersection" column="LOD3TERRAININTERSECTION" javaType="[B" />
+        <result property="lod4TerrainIntersection" column="LOD4TERRAININTERSECTION" javaType="[B" />
+        
+        <result property="lod0FootPrint" column="LOD0FOOTPRINT" javaType="[B" />
+        <result property="lod0RoofEdge" column="LOD0ROOFEDGE" javaType="[B" />
+        
+        <!-- Address  -->
+        <association property="address" column="ADDRESS_ID" javaType="Address" foreignColumn="ID"/>
+        
+
+        
+        <!-- Parent -->
+        <association property="parent" column="PARENT_ID" javaType="Building"  foreignColumn="ID"/>
+        
+        <!-- Collections -->
+        <collection property="buildingParts" column="id" ofType="Building"/>
+
+        <collection property="rooms" column="id" ofType="Room"/>
+        <collection property="buildingInstallations" column="id" ofType="BuildingInstallation"/>
+        <collection property="buildingBoundarys" column="id" ofType="BuildingBoundary"/>
+        
+        
+    </resultMap>
+    
+    <insert 
+		id="insertBuilding"
+		parameterType="Building"
+		flushCache="true"
+	>
+    	INSERT INTO Building 
+    	(
+    		ID, PARENT_ID, 
+    		CLAZZ, CLASS_CODESPACE, FUNC, FUNC_CODESPACE, USAGE, USAGE_CODESPACE,
+    		YEAR_OF_CONSTRUCTION, YEAR_OF_DEMOLITION, 
+    		ROOF_TYPE, ROOF_TYPE_CODESPACE, MEASURED_HEIGHT, MEASURED_HEIGHT_UNIT, 
+    		STOREYS_ABOVE_GROUND, STOREYS_BELOW_GROUND,
+    		STOREY_HEIGHTS_ABOVE_GROUND, STOREY_HEIGHTS_ABOVE_UNIT, 
+    		STOREY_HEIGHTS_BELOW_GROUND, STOREY_HEIGHTS_BELOW_UNIT,
+    		
+    		ADDRESS_ID
+    		
+     		,LOD1SOLID, LOD2SOLID, LOD3SOLID, LOD4SOLID
+     		
+    		,LOD1MULTISURFACE, LOD2MULTISURFACE, LOD3MULTISURFACE, LOD4MULTISURFACE
+    		,LOD2MULTICURVE, LOD3MULTICURVE, LOD4MULTICURVE
+    		,LOD1TERRAININTERSECTION, LOD2TERRAININTERSECTION, LOD3TERRAININTERSECTION, LOD4TERRAININTERSECTION
+    		,LOD0FOOTPRINT, LOD0ROOFEDGE
+    		
+    	)
+    	VALUES
+		(
+			#{id}, #{parent.id}, 
+			#{clazz}, #{classCodeSpace}, #{func}, #{funcCodeSpace}, #{usage}, #{usageCodeSpace},
+			#{yearOfConstruction}, #{yearOfDemolition}, 
+			#{roofType}, #{roofTypeCodeSpace}, #{measuredHeight}, #{measuredHeightUnit},
+			#{storeysAboveGround}, #{storeysBelowGround}, 
+			#{storeyHeightsAboveGround}, #{storeyHeightsAboveUnit},
+			#{storeyHeightsBelowGround}, #{storeyHeightsBelowUnit},
+			
+			#{address.id}
+			
+ 			,Box3D(ST_GEOMFROMWKB(#{lod1Solid}, 4326)), Box3D(ST_GEOMFROMWKB(#{lod2Solid}, 4326))
+			,Box3D(ST_GEOMFROMWKB(#{lod3Solid}, 4326)), Box3D(ST_GEOMFROMWKB(#{lod4Solid}, 4326))
+			
+			,ST_GEOMFROMWKB(#{lod1MultiSurface}, 4326), ST_GEOMFROMWKB(#{lod2MultiSurface}, 4326)
+			,ST_GEOMFROMWKB(#{lod3MultiSurface}, 4326), ST_GEOMFROMWKB(#{lod4MultiSurface}, 4326)
+			
+			,ST_GEOMFROMWKB(#{lod2MultiCurve}, 4326), ST_GEOMFROMWKB(#{lod3MultiCurve}, 4326), ST_GEOMFROMWKB(#{lod4MultiCurve}, 4326)
+			
+			,ST_GEOMFROMWKB(#{lod1TerrainIntersection}, 4326), ST_GEOMFROMWKB(#{lod2TerrainIntersection}, 4326)
+			,ST_GEOMFROMWKB(#{lod3TerrainIntersection}, 4326), ST_GEOMFROMWKB(#{lod4TerrainIntersection}, 4326)
+			
+			,ST_GEOMFROMWKB(#{lod0FootPrint}, 4326), ST_GEOMFROMWKB(#{lod0RoofEdge}, 4326)
+		)
+    </insert>
+    
+    <sql id="BuildingColumn">
+    	${alias}.ID, ${alias}.PARENT_ID, 
+    	${alias}.CLAZZ, ${alias}.CLASS_CODESPACE, 
+    	${alias}.FUNC, ${alias}.FUNC_CODESPACE,
+    	${alias}.USAGE, ${alias}.USAGE_CODESPACE,
+    	${alias}.YEAR_OF_CONSTRUCTION, ${alias}.YEAR_OF_DEMOLITION, 
+    	${alias}.ROOF_TYPE, ${alias}.ROOF_TYPE_CODESPACE, ${alias}.MEASURED_HEIGHT, ${alias}.MEASURED_HEIGHT_UNIT, 
+    	${alias}.STOREYS_ABOVE_GROUND, ${alias}.STOREYS_BELOW_GROUND,
+    	${alias}.STOREY_HEIGHTS_ABOVE_GROUND, ${alias}.STOREY_HEIGHTS_ABOVE_UNIT, 
+    	${alias}.STOREY_HEIGHTS_BELOW_GROUND, ${alias}.STOREY_HEIGHTS_BELOW_UNIT,
+    	${alias}.ADDRESS_ID,
+    	
+    	ST_ASBINARY(${alias}.LOD1SOLID) AS LOD1SOLID, ST_ASBINARY(${alias}.LOD2SOLID) AS LOD2SOLID,
+    	ST_ASBINARY(${alias}.LOD3SOLID) AS LOD3SOLID, ST_ASBINARY(${alias}.LOD4SOLID) AS LOD4SOLID,
+    	
+		ST_ASBINARY(${alias}.LOD1MULTISURFACE) AS LOD1MULTISURFACE ,ST_ASBINARY(${alias}.LOD2MULTISURFACE) AS LOD2MULTISURFACE,
+		ST_ASBINARY(${alias}.LOD3MULTISURFACE) AS LOD3MULTISURFACE ,ST_ASBINARY(${alias}.LOD4MULTISURFACE) AS LOD4MULTISURFACE,
+		
+		ST_ASBINARY(${alias}.LOD2MULTICURVE) AS LOD2MULTICURVE, ST_ASBINARY(${alias}.LOD3MULTICURVE) AS LOD3MULTICURVE, ST_ASBINARY(${alias}.LOD4MULTICURVE) AS LOD4MULTICURVE,
+		
+		ST_ASBINARY(${alias}.LOD1TERRAININTERSECTION) AS LOD1TERRAININTERSECTION, ST_ASBINARY(${alias}.LOD2TERRAININTERSECTION) AS LOD2TERRAININTERSECTION,
+		ST_ASBINARY(${alias}.LOD3TERRAININTERSECTION) AS LOD3TERRAININTERSECTION, ST_ASBINARY(${alias}.LOD4TERRAININTERSECTION) AS LOD4TERRAININTERSECTION,
+		
+		ST_ASBINARY(${alias}.LOD0FOOTPRINT) AS LOD0FOOTPRINT, ST_ASBINARY(${alias}.LOD0ROOFEDGE) AS LOD0ROOFEDGE
+    </sql>
+     
+    <select
+    	id="selectBuilding"
+    	parameterType="int"
+    	resultMap="BuildingResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="BuildingColumn"><property name="alias" value="B"/></include> 
+		FROM Building B
+			LEFT JOIN CityObject CO on B.ID = CO.ID
+		WHERE 
+			B.ID = #{id}
+    </select>
+    
+    <select
+    	id="selectBuildingParentForBuilding"
+    	parameterType="int"
+    	resultMap="BuildingResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="BuildingColumn"><property name="alias" value="PB"/></include>
+		FROM Building PB
+			INNER JOIN Building CB
+			ON PB.ID = CB.PARENTID
+			LEFT JOIN CityObject CO on CO.ID = PB.ID
+		WHERE
+			B.ID = #{id}
+    </select>
+    
+    <select
+    	id="selectBuildingPartsForBuilding"
+    	parameterType="int"
+    	resultMap="BuildingResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="BuildingColumn"><property name="alias" value="BP"/></include> 
+		FROM Building BP
+			LEFT JOIN Building B on B.ID = BP.PARENT_ID
+			LEFT JOIN CityObject CO on CO.ID = BP.ID
+		WHERE 
+			B.ID = #{id}
+    </select>
+    
+    <select
+    	id="selectRoomsForBuilding"
+    	parameterType="int"
+    	resultMap="RoomResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="RoomColumn"><property name="alias" value="R"/></include>  
+		FROM Room R
+			LEFT JOIN CityObject CO on R.ID = CO.ID
+			LEFT JOIN Building B on R.BUILDING_ID = B.ID
+		WHERE 
+			B.ID = #{id}
+    </select>
+    
+    <select
+    	id="selectBuildingInstallationsForBuilding"
+    	parameterType="int"
+    	resultMap="BuildingInstallationResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="BuildingInstallationColumn"><property name="alias" value="BI"/></include>
+		FROM BuildingInstallation BI
+			LEFT JOIN CityObject CO on CO.ID = BI.ID
+			LEFT JOIN Building B on BI.BUILDING_ID = B.ID
+		WHERE 
+			B.ID = #{id}
+    </select>
+    
+    <select
+    	id="selectBuildingBoundarysForBuilding"
+    	parameterType="int"
+    	resultMap="BuildingBoundaryResultMap"
+    >
+    	SELECT
+    	<include refid="CityObjectColumn"><property name="alias" value="CO"/></include>, 
+    	<include refid="BuildingBoundaryColumn"><property name="alias" value="BB"/></include>
+		FROM BuildingBoundary BB
+			LEFT JOIN CityObject CO on BB.ID = CO.ID
+			LEFT JOIN Building B on BB.BUILDING_ID = B.ID
+		WHERE 
+			B.ID = #{id}
+    </select>
+    
+</mapper>

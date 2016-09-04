@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+	PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+	"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.opengis.citygml.v_2_0">
+
+     <resultMap type="BuildingOpening" id="BuildingOpeningResultMap" extends="CityObjectResultMap">
+		<id property="id" column="ID" />
+		
+		<result property="openingType" column="OPENING_TYPE" />
+		
+		<result property="lod3MultiSurface" column="LOD3MULTISURFACE" javaType="[B" />
+        <result property="lod4MultiSurface" column="LOD4MULTISURFACE" javaType="[B" />
+		
+		<association property="lod3ImplicitRepresentation" column="LOD3IMPLICITREPRESENTATION" javaType="ImplicitGeometry" foreignColumn="ID"/>
+        <association property="lod4ImplicitRepresentation" column="LOD4IMPLICITREPRESENTATION" javaType="ImplicitGeometry" foreignColumn="ID"/>
+		
+		<association property="boundary" column="BUILDINGBOUNDARY_ID" javaType="BuildingBoundary" foreignColumn="ID"/>
+		<association property="address" column="ADDRESS_ID" javaType="Address" foreignColumn="ID"/>
+		
+
+    </resultMap>
+    
+    <sql id="BuildingOpeningColumn">
+    	${alias}.ID, ${alias}.OPENING_TYPE, 
+    	${alias}.BUILDINGBOUNDARY_ID, ${alias}.ADDRESS_ID, 
+    	
+    	ST_ASBINARY(${alias}.LOD3MULTISURFACE) AS LOD3MULTISURFACE ,ST_ASBINARY(${alias}.LOD4MULTISURFACE) AS LOD4MULTISURFACE,
+    	
+    	${alias}.LOD3IMPLICITREPRESENTATION, ${alias}.LOD4IMPLICITREPRESENTATION 
+    </sql>
+    
+    <insert 
+		id="insertBuildingOpening"
+		parameterType="BuildingOpening"
+		flushCache="true"
+	>
+    	INSERT INTO BuildingOpening 
+    	(
+    		ID, OPENING_TYPE, 
+    		BUILDINGBOUNDARY_ID, ADDRESS_ID, 
+    		LOD3MULTISURFACE, LOD4MULTISURFACE,
+    		LOD3IMPLICITREPRESENTATION, LOD4IMPLICITREPRESENTATION
+    	)
+    	VALUES
+		(
+			#{id}, #{openingType}, 
+			#{boundary.id}, #{address.id}, 
+			
+			ST_GEOMFROMWKB(#{lod3MultiSurface}, 4326) ,ST_GEOMFROMWKB(#{lod4MultiSurface}, 4326),
+			#{lod3ImplicitRepresentation.id}, #{lod4ImplicitRepresentation.id}
+		)
+     </insert>
+     
+
+</mapper>
