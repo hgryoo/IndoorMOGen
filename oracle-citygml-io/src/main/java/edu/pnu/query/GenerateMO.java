@@ -41,20 +41,23 @@ public class GenerateMO {
 		for(int i = 0; i < polyLineValue.size() -1; i++){
 			STPoint preP = polyLineValue.get(i);
 			STPoint nextP = polyLineValue.get(i + 1);
-			Double tempInternalLength = Math.sqrt(Math.pow((preP.X() - nextP.X()), 2) + Math.pow((preP.Y() - nextP.Y()), 2));
-			
-			int internalPointCount = (int) (tempInternalLength / velocity);
+			Double tempInternalLengthXYZ = Math.sqrt(Math.pow((preP.X() - nextP.X()), 2) + Math.pow((preP.Y() - nextP.Y()), 2)
+				+ Math.pow((preP.Z() - nextP.Z()), 2));
+			int internalPointCount = (int) (tempInternalLengthXYZ / velocity);
 			if(internalPointCount != 0){
-				double offsetX = velocity * (nextP.X() - preP.X()) / tempInternalLength;
-				double offsetY = velocity * (nextP.Y() - preP.Y()) / tempInternalLength;
+				Double tempInternalLengthXY = Math.sqrt(Math.pow((preP.X() - nextP.X()), 2) + Math.pow((preP.Y() - nextP.Y()), 2));
+				double offsetZ = velocity * (nextP.Z() - preP.Z()) / tempInternalLengthXYZ;
+				double offsetX_Y = velocity * (tempInternalLengthXY) / tempInternalLengthXYZ;
+				double offsetX = offsetX_Y * (nextP.X() - preP.X()) / tempInternalLengthXY;
+				double offsetY = offsetX_Y * (nextP.Y() - preP.Y()) / tempInternalLengthXY;
 				
 				for(int j = 0; j < internalPointCount; j++){
-					STPoint internalP = gf.createPoint(new double[] {preP.X() + offsetX*j, preP.Y() + offsetY*j, preP.Z()});
+					STPoint internalP = gf.createPoint(new double[] {preP.X() + offsetX*j, preP.Y() + offsetY*j, preP.Z() + offsetZ*j});
 					moList.add(internalP);
 				}	
 			}
 			else{
-				moList.add(preP);
+				moList.add(preP);	
 			}
 		}
 		
