@@ -44,12 +44,17 @@ public class GenerateMO {
 			Double tempInternalLength = Math.sqrt(Math.pow((preP.X() - nextP.X()), 2) + Math.pow((preP.Y() - nextP.Y()), 2));
 			
 			int internalPointCount = (int) (tempInternalLength / velocity);
-			double offsetX = velocity * (nextP.X() - preP.X()) / tempInternalLength;
-			double offsetY = velocity * (nextP.Y() - preP.Y()) / tempInternalLength;
-			
-			for(int j = 0; j < internalPointCount; j++){
-				STPoint internalP = gf.createPoint(new double[] {preP.X() + offsetX*j, preP.Y() + offsetY*j, preP.Z()});
-				moList.add(internalP);
+			if(internalPointCount != 0){
+				double offsetX = velocity * (nextP.X() - preP.X()) / tempInternalLength;
+				double offsetY = velocity * (nextP.Y() - preP.Y()) / tempInternalLength;
+				
+				for(int j = 0; j < internalPointCount; j++){
+					STPoint internalP = gf.createPoint(new double[] {preP.X() + offsetX*j, preP.Y() + offsetY*j, preP.Z()});
+					moList.add(internalP);
+				}	
+			}
+			else{
+				moList.add(preP);
 			}
 		}
 		
