@@ -187,6 +187,9 @@ public class QueryModule {
 						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
 				intersectRoomByPoint(session, modelName, bufferedPoint);
 			}
+			else{
+				throw new Exception("Query failed");
+			}
 		}
 			
 		

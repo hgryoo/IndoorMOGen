@@ -34,7 +34,7 @@ public class GenerateMO {
 	}
 	
 	public static List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
-		final int SIGMA = 5;
+		final int SIGMA = 2;
 		final int CHOOSECOUNT = 5;
 		
 		if(session.equals(null))
