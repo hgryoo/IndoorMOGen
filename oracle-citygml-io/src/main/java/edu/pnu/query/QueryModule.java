@@ -15,7 +15,9 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
+import edu.pnu.common.geometry.CommonGeometryFactory;
 import edu.pnu.common.geometry.model.STGeometry;
+import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.common.geometry.model.STSolid;
 import edu.pnu.common.geometry.utils.WKBGeometryBuilder;
 import net.opengis.citygml.v_2_0.dao.MapperNamespace;
@@ -118,7 +120,13 @@ public class QueryModule {
 		//List<Room> resultRooms = session.selectList(MapperNamespace.ROOM_INTERSECT_QUERY, param);
 		List<Room> resultRooms = new ArrayList<Room>();
 		Connection conn = session.getConnection();
-		J3D_Geometry querySolid = OrcaleGeometryConvert.ConvertSolid((STSolid) geometry);
+		J3D_Geometry queryGeometry = null;
+		if(geometry instanceof STPoint){
+			STPoint p = (STPoint) geometry;
+			queryGeometry = new J3D_Geometry(3001, geometry.SRID(), new int[] {1, 1, 1}, new double[] {p.X(), p.Y(), p.Z()});
+		}
+		else if(geometry instanceof STSolid)
+			queryGeometry = OrcaleGeometryConvert.ConvertSolid((STSolid) geometry);
 		
 		String sql = "SELECT "
 				+ "R.ID, R.BUILDING_ID,"
@@ -149,7 +157,7 @@ public class QueryModule {
 				J3D_Geometry targetSolid = new J3D_Geometry(lod4solidGeometry.getType(), lod4solidGeometry.getSRID(), lod4solidGeometry.getElemInfo(), lod4solidGeometry.getOrdinatesArray());
 				//JGeometry lod4multisurfaceGeometry = J3D_Geometry.loadJS(lod4multisurface);
 				
-				boolean intersectResult = querySolid.anyInteract(targetSolid, 0.01);
+				boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
 				if(intersectResult){
 					//System.out.println(intersectResult);
 					Room room =  new Room();
@@ -170,8 +178,17 @@ public class QueryModule {
 			e1.printStackTrace();
 		}
 		
-		if(resultRooms.size() != 1)
-			throw new Exception("Query result is invalid");
+		if(resultRooms.size() == 0){
+			if(geometry instanceof STPoint){
+				STPoint p = (STPoint) geometry;
+				double buffersize = 1;
+				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
+						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
+				intersectRoomByPoint(session, modelName, bufferedPoint);
+			}
+		}
+			
 		
 		return resultRooms.get(0).getId();
 	}

@@ -14,24 +14,30 @@ import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.importexport.CityGMLOracleManager;
 
 public class GenerateMO {
-	public List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
-		final int SIGMA = 5;
-		final int CHOOSECOUNT = 5;
-		
-		CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
-		CityGMLOracleManager manager = CityGMLOracleManager.getManager();
-		Properties props = new Properties();
+	CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+	CityGMLOracleManager manager = CityGMLOracleManager.getManager();
+	Properties props = new Properties();
+	SqlSession session = null;
+	
+	private void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
 		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
 		props.put("username", "system");
 		props.put("password", "STEM9987");
-		SqlSession session = null;
+		
 		try {
 			session = manager.createSession(props);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}	
+	}
+	public List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
+		final int SIGMA = 5;
+		final int CHOOSECOUNT = 5;
+		
+		if(session.equals(null))
+			connectedDBMS();
 		
 		for(int i = 0; i < orginTrajectory.size(); i++){
 			Coordinate internalPoint = orginTrajectory.get(i);
@@ -118,12 +124,16 @@ public class GenerateMO {
 		try {
 			int beforeCellId = queryModule.intersectRoomByPoint(session, "Test Data", orginP);
 			int afterCellId =  queryModule.intersectRoomByPoint(session, "Test Data", newPoint);
-			while(beforeCellId != afterCellId){
+			for(int i = 0; i < 3; i++){
 				errorOffSetX = errorOffSetX / 2;
 				errorOffSetY = errorOffSetY / 2;
 				newPoint = gf.createPoint(new double[] {orginP.X() + errorOffSetX, orginP.Y() + errorOffSetY, orginP.Z()});
 				afterCellId =  queryModule.intersectRoomByPoint(session, "Test Data", newPoint);
+				if(beforeCellId == afterCellId)
+					break;
 			}
+			if(beforeCellId != afterCellId)
+				newPoint = orginP;
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
