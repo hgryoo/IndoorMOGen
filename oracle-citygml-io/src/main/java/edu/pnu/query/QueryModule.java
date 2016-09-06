@@ -123,7 +123,7 @@ public class QueryModule {
 		J3D_Geometry queryGeometry = null;
 		if(geometry instanceof STPoint){
 			STPoint p = (STPoint) geometry;
-			queryGeometry = new J3D_Geometry(3001, geometry.SRID(), new int[] {1, 1, 1}, new double[] {p.X(), p.Y(), p.Z()});
+			queryGeometry = new J3D_Geometry(3001, geometry.SRID(), p.X(), p.Y(), p.Z());
 		}
 		else if(geometry instanceof STSolid)
 			queryGeometry = OrcaleGeometryConvert.ConvertSolid((STSolid) geometry);
