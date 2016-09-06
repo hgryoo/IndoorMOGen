@@ -75,15 +75,19 @@
         </dependency>
         
         <dependency>
-            <groupId>oracle</groupId>
+            <groupId>com.oracle</groupId>
             <artifactId>oracle-sdoapi</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+			<systemPath>${project.basedir}/lib/oracle-sdoapi-1.0.0.jar</systemPath>
         </dependency>
         
         <dependency>
-            <groupId>oracle</groupId>
+            <groupId>com.oracle</groupId>
             <artifactId>oracle-sdoutl</artifactId>
             <version>1.0.0</version>
+            <scope>system</scope>
+			<systemPath>${project.basedir}/lib/oracle-sdoutl-1.0.0.jar</systemPath>
         </dependency>
         
 	</dependencies>
