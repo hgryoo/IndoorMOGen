@@ -1,0 +1,140 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>edu.pnu</groupId>
+    <artifactId>kairos-citygml</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <artifactId>kairos-citygml-xsd-v_2_0</artifactId>
+     <properties>
+	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  
+  <dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+
+ 		<dependency>
+			<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-basics</artifactId>
+			<version>0.9.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jvnet.jaxb2_commons</groupId>
+			<artifactId>jaxb2-basics-runtime</artifactId>
+			<version>0.9.4</version>
+		</dependency>
+<!-- 		<dependency>
+            <groupId>org.jvnet.jaxb2_commons</groupId>
+            <artifactId>jaxb2-basics-annotate</artifactId>
+            <version>1.0.1</version>
+        </dependency> -->
+		<dependency>
+			<groupId>javax.xml.bind</groupId>
+			<artifactId>jaxb-api</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+		 <dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-impl</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.xml.bind</groupId>
+			<artifactId>jaxb-core</artifactId>
+			<version>2.2.11</version>
+		</dependency>
+	</dependencies>
+	
+<!-- 	<build>
+		<plugins>
+			<plugin>
+	            <groupId>org.apache.maven.plugins</groupId>
+	            <artifactId>maven-compiler-plugin</artifactId>
+	            <configuration>
+	                <source>1.7</source>
+	                <target>1.7</target>
+	            </configuration>
+	        </plugin>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.12.3</version>
+	 			<executions>
+					<execution>
+						<phase>generate-sources</phase>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					===========================================================
+					Specifying Schemas
+					===========================================================
+					<schemas>
+						<schema>
+							<url>http://schemas.opengis.net/citygml/profiles/base/2.0/CityGML.xsd</url>
+						</schema>
+					</schemas>
+					<schemaDirectory>${basedir}/src/main/resources/citygml/v_2_0/</schemaDirectory>
+					<schemaIncludes>
+					    <include>CityGML.xsd</include>
+					</schemaIncludes>
+					<schemaLanguage>XMLSCHEMA</schemaLanguage>
+					===========================================================
+					Specifying Binding
+					===========================================================
+					<bindingDirectory>${basedir}/src/main/resources/bindings</bindingDirectory>
+					<bindingIncludes>
+						<include>binding.xjb</include>
+					</bindingIncludes>
+					===========================================================
+					Specifying Catalog
+					===========================================================
+					<catalog>${basedir}/src/main/resources/bindings/catalog.cat</catalog>
+					===========================================================
+					Separate Schema Compilation
+					===========================================================
+					<episode>true</episode>
+					<useDependenciesAsEpisodes>true</useDependenciesAsEpisodes>
+					===========================================================
+					Using JAXB Plugins
+					===========================================================
+					<args>
+				        <arg>-XtoString</arg>
+				        <arg>-Xequals</arg>
+				        <arg>-XhashCode</arg>
+				        <arg>-Xcopyable</arg>
+				        <arg>-Xwildcard</arg>
+				    </args>
+				    <plugins>
+					    <plugin>
+							<groupId>org.jvnet.jaxb2_commons</groupId>
+							<artifactId>jaxb2-basics</artifactId>
+						</plugin>
+					</plugins>
+					===========================================================
+					Controlling The Output
+					===========================================================
+					<generateDirectory>${basedir}/src/main/java</generateDirectory>
+					<generatePackage>net.opengis.citygml.v_2_0</generatePackage>
+					<removeOldOutput>false</removeOldOutput>
+					<locale>en</locale>
+					
+					===========================================================
+					Configuring Extension Validation and XML Security
+					===========================================================
+					<extension>true</extension>
+					<strict>false</strict>
+					<disableXmlSecurity>true</disableXmlSecurity>
+					<accessExternalSchema>all</accessExternalSchema>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build> -->
+</project>
