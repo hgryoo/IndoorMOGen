@@ -14,12 +14,12 @@ import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.importexport.CityGMLOracleManager;
 
 public class GenerateMO {
-	CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
-	CityGMLOracleManager manager = CityGMLOracleManager.getManager();
-	Properties props = new Properties();
-	SqlSession session = null;
+	static CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+	static CityGMLOracleManager manager = CityGMLOracleManager.getManager();
+	static Properties props = new Properties();
+	static SqlSession session = null;
 	
-	private void connectedDBMS(){
+	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
 		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
 		props.put("username", "system");
@@ -32,7 +32,8 @@ public class GenerateMO {
 			e.printStackTrace();
 		}	
 	}
-	public List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
+	
+	public static List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
 		final int SIGMA = 5;
 		final int CHOOSECOUNT = 5;
 		
@@ -49,7 +50,7 @@ public class GenerateMO {
 		return orginTrajectory;
 	}
 	
-	public List<STPoint> createMovingObjects(List<STPoint> polyLineValue, int velocity){
+	public static List<STPoint> createMovingObjects(List<STPoint> polyLineValue, int velocity){
 		final int SIGMA = 5;
 		final int CHOOSECOUNT = 5;
 		
@@ -105,7 +106,7 @@ public class GenerateMO {
 	    return (Math.random() * (n2 - n1 + 1)) + n1;
 	}
 	
-	private STPoint addNoise(SqlSession session, CommonGeometryFactory gf, STPoint orginP, final double sigma, final int chooseCount){
+	private static STPoint addNoise(SqlSession session, CommonGeometryFactory gf, STPoint orginP, final double sigma, final int chooseCount){
 		QueryModule queryModule = new QueryModule();
 		Random random = new Random();
 		
