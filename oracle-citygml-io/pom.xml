@@ -90,5 +90,10 @@
 			<systemPath>${project.basedir}/lib/oracle-sdoutl-1.0.0.jar</systemPath>
         </dependency>
         
+        <dependency>
+		    <groupId>com.vividsolutions</groupId>
+		    <artifactId>jts</artifactId>
+		    <version>1.13</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -7,11 +7,42 @@ import java.util.Random;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 import edu.pnu.common.geometry.CommonGeometryFactory;
 import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.importexport.CityGMLOracleManager;
 
 public class GenerateMO {
+	public List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
+		final int SIGMA = 5;
+		final int CHOOSECOUNT = 5;
+		
+		CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+		CityGMLOracleManager manager = CityGMLOracleManager.getManager();
+		Properties props = new Properties();
+		props.put("driver", "oracle.jdbc.driver.OracleDriver");
+		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
+		props.put("username", "system");
+		props.put("password", "STEM9987");
+		SqlSession session = null;
+		try {
+			session = manager.createSession(props);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		for(int i = 0; i < orginTrajectory.size(); i++){
+			Coordinate internalPoint = orginTrajectory.get(i);
+			STPoint internalSTPoint = gf.createPoint(new double[] {internalPoint.x, internalPoint.y, internalPoint.z});
+			internalSTPoint = addNoise(session, gf, internalSTPoint, SIGMA, CHOOSECOUNT);
+			internalPoint.setCoordinate(new Coordinate(internalSTPoint.X(), internalSTPoint.Y(), internalSTPoint.Z()));
+			orginTrajectory.set(i, internalPoint);
+		}
+		return orginTrajectory;
+	}
+	
 	public List<STPoint> createMovingObjects(List<STPoint> polyLineValue, int velocity){
 		final int SIGMA = 5;
 		final int CHOOSECOUNT = 5;
