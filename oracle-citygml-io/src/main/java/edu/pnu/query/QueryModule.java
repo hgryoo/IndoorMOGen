@@ -132,13 +132,7 @@ public class QueryModule {
 				+ "R.ID, R.BUILDING_ID,"
 				+ "R.CLAZZ, R.CLASS_CODESPACE, R.FUNC, R.FUNC_CODESPACE, R.USAGE, R.USAGE_CODESPACE,"
 				+ "R.LOD4SOLID,R.LOD4MULTISURFACE"
-				+ " FROM ROOM R "
-				+ "INNER JOIN CityObject CO on R.ID = CO.ID "
-				+ "INNER JOIN Building B on R.BUILDING_ID = B.ID "
-				+ "INNER JOIN CityObjectMember COM on COM.CITYOBJECT_ID = B.ID "
-				+ "INNER JOIN CityModel CM on COM.CITYMODEL_ID = CM.ID "
-				+ " WHERE "
-				+ "CM.SID = '" + modelName + "'";
+				+ " FROM ROOM R ";
 		try {
 			PreparedStatement pstm = conn.prepareStatement(sql);
 			ResultSet rs = pstm.executeQuery(sql);
@@ -181,11 +175,11 @@ public class QueryModule {
 		if(resultRooms.size() == 0){
 			if(geometry instanceof STPoint){
 				STPoint p = (STPoint) geometry;
-				double buffersize = 1;
+				double buffersize = 3;
 				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
 				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
 						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
-				intersectRoomByPoint(session, modelName, bufferedPoint);
+				return intersectRoomByPoint(session, modelName, bufferedPoint);
 			}
 			else{
 				throw new Exception("Query failed");
