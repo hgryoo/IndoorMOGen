@@ -34,20 +34,16 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
-
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.core.Generator;
+import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.State;
-import edu.pnu.model.graph.CoordinateGraph;
 
 /**
  * @author hgryoo
  *
  */
-public class DijkstraPathFinder {
-    private static final Logger LOGGER = Logger.getLogger(DijkstraPathFinder.class);
+public class StateDijkstraPathFinder {
     
     /** Value for infinite distance  */
     private static final Double INFINITY = Double.MAX_VALUE;
@@ -57,24 +53,24 @@ public class DijkstraPathFinder {
     /** Map of node distances from the source node */
     private DistanceMap distances;
     /** Set of already visited nodes (where the shortest path is known) */
-    private Set<Coordinate> visited;
+    private Set<State> visited;
     /** Priority queue of unvisited nodes discovered so far */
-    private Queue<Coordinate> unvisited;
+    private Queue<State> unvisited;
     /** Map of previous nodes on the shortest path(s) */
-    private Map<Coordinate, Coordinate> prevNodes;
+    private Map<State, State> prevNodes;
     
-    private CoordinateGraph graph;
+    private SpaceLayer graph;
     
-    public DijkstraPathFinder(CoordinateGraph graph) {
+    public StateDijkstraPathFinder(SpaceLayer graph) {
         this.graph = graph;
     }
     
-    private void init(Coordinate node) {
+    private void init(State node) {
         // create needed data structures
-        this.unvisited = new PriorityQueue<Coordinate>(PQ_INIT_SIZE, 
+        this.unvisited = new PriorityQueue<State>(PQ_INIT_SIZE, 
                         new DistanceComparator());
-        this.visited = new HashSet<Coordinate>();
-        this.prevNodes = new HashMap<Coordinate, Coordinate>();
+        this.visited = new HashSet<State>();
+        this.prevNodes = new HashMap<State, State>();
         this.distances = new DistanceMap();
         
         // set distance to source 0 and initialize unvisited queue
@@ -82,26 +78,19 @@ public class DijkstraPathFinder {
         this.unvisited.add(node);
     }
     
-    public List<Coordinate> getShortestPath(Coordinate from, Coordinate to) {
+    public List<State> getShortestPath(State from, State to) {
         //TODO CoordinateGraph에 없는 경우 어떤 Transition 위에 있는지 판단하여 가까운 State에 해당하는 Coordinate를 매핑
-        
-        Coordinate fromOn = graph.getNearestCoordinte(from);
-        Coordinate toOn = graph.getNearestCoordinte(to);
-        
-        //LOGGER.debug(graph.getState(fromOn).getId() + "," + graph.getState(to).getId());
-        
-        List<Coordinate> result = getShortestPathInteranl(fromOn, toOn);
-        return result;
+        return getShortestPathInteranl(from, to);
     }
     
-    private List<Coordinate> getShortestPathInteranl(Coordinate from, Coordinate to) {
-        List<Coordinate> coords = new LinkedList<Coordinate>();
+    private List<State> getShortestPathInteranl(State from, State to) {
+        List<State> coords = new LinkedList<State>();
         
         if (from.compareTo(to) == 0) { // source and destination are the same
             coords.add(from); // return a list containing only source node
         } else {
             init(from);
-            Coordinate node = null;
+            State node = null;
             while ((node = unvisited.poll()) != null) {
                     if (node == to) {
                             break; // we found the destination -> no need to search further
@@ -110,28 +99,23 @@ public class DijkstraPathFinder {
                     updateDistance(node); // add/update neighbor nodes' distances
             }
             
-            if(node == null) {
-                LOGGER.fatal("DijkstraPathFinder not found the destiantion");
-            }
-            
             // now we either have the path or such path wasn't available
             if (node == to) { // found a path
                     coords.add(0,to); 
-                    Coordinate prev = prevNodes.get(to); 
+                    State prev = prevNodes.get(to); 
                     while (prev != from) { 
                             coords.add(0, prev);      // always put previous node to beginning
                             prev = prevNodes.get(prev);
                     }       
                     coords.add(0, from); // finally put the source node to first node
             }
-            
         }
         return coords;
     }
     
-    private void updateDistance(Coordinate node) {
+    private void updateDistance(State node) {
         double nodeDist = distances.get(node);
-        for (Coordinate n : graph.getNeighbors(node)) {
+        for (State n : node.getNeighbors()) {
                 if (visited.contains(n)) {
                         continue; // skip visited nodes
                 }
@@ -146,18 +130,20 @@ public class DijkstraPathFinder {
         }
     }
     
-    private void setDistance(Coordinate n, double distance) {
+    private void setDistance(State n, double distance) {
         unvisited.remove(n); // remove node from old place in the queue
         distances.put(n, distance); // update distance
         unvisited.add(n); // insert node to the new place in the queue
     }
     
-    private double getDistance(Coordinate from, Coordinate to) {
-            return GeometryUtil.distance(from, to);
+    private double getDistance(State from, State to) {
+            return GeometryUtil.distance(
+                    from.getPoint().getCoordinate(),
+                    to.getPoint().getCoordinate());
     }
     
-    private class DistanceComparator implements Comparator<Coordinate> {
-        public int compare(Coordinate node1, Coordinate node2) {
+    private class DistanceComparator implements Comparator<State> {
+        public int compare(State node1, State node2) {
                 double dist1 = distances.get(node1);
                 double dist2 = distances.get(node2);
                 
@@ -168,19 +154,19 @@ public class DijkstraPathFinder {
                         return -1;
                 }
                 else {
-                        return node1.compareTo(node2);
+                        return node1.getId().compareTo(node1.getId());
                 }
         }
     }
     
     private class DistanceMap {
-        private HashMap<Coordinate, Double> map;
+        private HashMap<State, Double> map;
         
         public DistanceMap() {
-                this.map = new HashMap<Coordinate, Double>(); 
+                this.map = new HashMap<State, Double>(); 
         }
         
-        public double get(Coordinate node) {
+        public double get(State node) {
                 Double value = map.get(node);
                 if (value != null) {
                         return value;
@@ -190,7 +176,7 @@ public class DijkstraPathFinder {
                 }
         }
         
-        public void put(Coordinate node, double distance) {
+        public void put(State node, double distance) {
                 map.put(node, distance);
         }
         

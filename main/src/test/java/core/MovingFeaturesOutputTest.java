@@ -39,6 +39,7 @@ import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import edu.pnu.io.SimpleCSVExporter;
 import edu.pnu.io.SimpleMovingFeaturesExporter;
 import edu.pnu.model.History;
 
@@ -97,19 +98,20 @@ public class MovingFeaturesOutputTest {
     
     @Test
     public void simpleMassiveObjectGenerateTest() {
-        List< List<History> > trajectories = new ArrayList<List<History>>();
+        List<List<History>> trajectories = new ArrayList<List<History>>();
         Random random = new Random();
         double maxX = 1000;
         double maxY = 1000;
-        int MOVING_NUM = 1000;
+        int maxZ = 100;
+        int MOVING_NUM = 100;
         
         for(int i = 0; i < MOVING_NUM; i++) {
             List<History> history = new LinkedList<History>();
             double randX = random.nextDouble() * maxX;
             double randY = random.nextDouble() * maxY;
-            
-            Coordinate coord = new Coordinate(randX, randY, 0);
-            for(int j = 0; j < 10000; j++) {
+            double randZ = random.nextInt(maxZ);
+            Coordinate coord = new Coordinate(randX, randY, randZ);
+            for(int j = 0; j < 1000; j++) {
                 History h = new History(j, coord);
                 history.add(h);
     
@@ -123,11 +125,17 @@ public class MovingFeaturesOutputTest {
             trajectories.add(history);
         }
         
-        SimpleMovingFeaturesExporter exporter = new SimpleMovingFeaturesExporter("massiveTest");
+/*        SimpleMovingFeaturesExporter exporter = new SimpleMovingFeaturesExporter("massiveTest");
         
         for(int i = 0; i < MOVING_NUM; i++) {
             exporter.addHistory(UUID.randomUUID().toString(), trajectories.get(i));
         }
-        exporter.bufferedExport("target/massive_object.gml");
+        exporter.bufferedExport("target/massive_object.gml");*/
+        
+        SimpleCSVExporter csvExt = new SimpleCSVExporter("massiveTest");
+        for(int i = 0; i < MOVING_NUM; i++) {
+            csvExt.addHistory(UUID.randomUUID().toString(), trajectories.get(i));
+        }
+        csvExt.bufferedExport("target/massive_object.csv");
     }
 }

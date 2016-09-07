@@ -38,11 +38,17 @@ public class State implements Comparable<State> {
     private String id;
     private Point point;
     private List<Transition> connects = new ArrayList<Transition>();
-    private CellSpace duality;
+    private String duality;
     
     public State(String id, Point p) {
         this.id = id;
         this.point = p;
+    }
+    
+    public State(String id, Point p, String duality) {
+        this.id = id;
+        this.point = p;
+        this.duality = duality;
     }
     
     public String getId() {

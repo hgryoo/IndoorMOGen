@@ -32,9 +32,12 @@ import java.util.Map;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Point;
 
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.State;
 import edu.pnu.model.Transition;
+import edu.pnu.util.GeometryUtil;
 
 /**
  * @author hgryoo
@@ -45,6 +48,9 @@ public class CoordinateGraph {
     private Map<Coordinate, List<Coordinate>> adjacencyList
         = new HashMap<Coordinate, List<Coordinate>>();
     
+    private Map<Coordinate, State> stateList
+        = new HashMap<Coordinate, State>();
+    
     private Map<Coordinate, Transition> transitionList
         = new HashMap<Coordinate, Transition>();
     
@@ -53,6 +59,15 @@ public class CoordinateGraph {
         for(Transition t : ts) {
             addCoordinatefromTransition(t);
         }
+        
+        List<State> ss = layer.getNodes();
+        for(State s : ss) {
+            addCoordinatefromState(s);
+        }
+    }
+    
+    public State getState(Coordinate c) {
+        return stateList.get(c);
     }
     
     private void addCoordinatefromTransition(Transition t) {
@@ -63,6 +78,11 @@ public class CoordinateGraph {
             transitionList.put(coordinates[i], t);
             transitionList.put(coordinates[i + 1], t);
         }
+    }
+    
+    private void addCoordinatefromState(State s) {
+        Point p = s.getPoint();
+        stateList.put(p.getCoordinate(), s);
     }
     
     private void registerCoordinate(Coordinate a, Coordinate b) {
@@ -80,10 +100,24 @@ public class CoordinateGraph {
     }
     
     public List<Coordinate> getNeighbors(Coordinate c) {
-        List<Coordinate> neighbors = adjacencyList.get(c);
+        Coordinate key = getNearestCoordinte(c);
+        List<Coordinate> neighbors = adjacencyList.get(key);
         if(neighbors == null) {
             neighbors = Collections.emptyList();
         }
         return neighbors;
-    } 
+    }
+    
+    public Coordinate getNearestCoordinte(Coordinate c) {
+        Coordinate minKey = null;
+        double min = Double.MAX_VALUE;
+        for(Coordinate k : adjacencyList.keySet()) {
+            double dist = GeometryUtil.distance(c, k);
+            if(dist < min) {
+                min = dist;
+                minKey = k;
+            }
+        }
+        return minKey;
+    }
 }

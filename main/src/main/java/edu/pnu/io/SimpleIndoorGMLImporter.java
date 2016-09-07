@@ -24,10 +24,54 @@
  */
 package edu.pnu.io;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
+
+import edu.pnu.model.SpaceBuilder;
+import edu.pnu.model.SpaceLayer;
+
 /**
  * @author hgryoo
  *
  */
 public class SimpleIndoorGMLImporter {
+
+    private SpaceBuilder builder;
     
+    public SimpleIndoorGMLImporter(String url) throws ParserConfigurationException, SAXException, IOException {
+        File file = new File(url);
+        
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser parser = factory.newSAXParser();
+        SimpleIndoorGMLHandler handler = new SimpleIndoorGMLHandler();
+        parser.parse(file, handler);
+        builder = handler.getSpaceBuilder();
+    }
+    
+    public SpaceLayer getSpaceLayer() {
+        return builder.buildSpaceLayer();
+    }
+    
+    public static void main(String[] args) {
+        try {
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/LWM_IGML.gml");
+            
+            SpaceLayer l = importer.getSpaceLayer();
+            
+            System.out.println(l);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

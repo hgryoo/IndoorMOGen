@@ -67,6 +67,13 @@ public class SpaceLayer {
     public List<Transition> getEdges() {
         return edges;
     }
+    
+    public State getState(String id) {
+        if(nodesMap.containsKey(id)) {
+            return nodes.get(nodesMap.get(id));
+        }
+        return null;
+    }
 
     @Override
     public String toString() {

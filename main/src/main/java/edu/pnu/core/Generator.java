@@ -26,13 +26,12 @@ package edu.pnu.core;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.History;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 
@@ -78,7 +77,7 @@ public class Generator {
             } else {
                 clock.advance(remaining);
             }
-            LOGGER.fine("Advanced Clock : " + clock.getTime());
+            LOGGER.info("Advanced Clock : " + clock.getTime());
             
             for(MovingObject m : moList) {
                 m.update(1);

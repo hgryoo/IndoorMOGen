@@ -27,12 +27,16 @@ package edu.pnu.movement;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
+import edu.pnu.core.Generator;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.State;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.query.GenerateMO;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
@@ -41,6 +45,7 @@ import edu.pnu.util.GeometryUtil;
  *
  */
 public class RandomWayPoint extends AbstractWayPoint {    
+    private static final Logger LOGGER = Logger.getLogger(RandomWayPoint.class);
     
     private DijkstraPathFinder finder = null;
     private SpaceLayer layer;
@@ -54,6 +59,7 @@ public class RandomWayPoint extends AbstractWayPoint {
     public Coordinate getNext(MovingObject mo, double time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
+            
             List<State> states = layer.getNodes();
             int randNumber = new Random().nextInt(states.size() - 1);
             State dest = states.get(randNumber);
@@ -61,13 +67,13 @@ public class RandomWayPoint extends AbstractWayPoint {
             //TODO State의 Coordinate가 아닌 임의의 Coordinate가 필요
             waypoint = dest.getPoint().getCoordinate();
             
-            //TODO START와 END는 State의 Coordinate이어야 한다.
-            
-            if(mo.getCoord() == null || waypoint == null) {
-                System.out.println();
-            }
-            
+            //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
             List<Coordinate> coords = finder.getShortestPath(mo.getCoord(), waypoint);
+            
+            if(coords.isEmpty()) {
+                coords.add(mo.getCoord());
+                coords.add(graph.getNeighbors(mo.getCoord()).get(0));
+            }
             this.setPath(new Path(coords));
         }
         
@@ -89,8 +95,13 @@ public class RandomWayPoint extends AbstractWayPoint {
         
         if(totalDist > 0) {
             finder = null;
-            mo.setCoord(getPath().getNext(mo.getVelocity()));
-            newCoord = getNext(mo, totalDist);
+            newCoord = getPath().getNext(mo.getVelocity());
+            double remain = totalDist/mo.getVelocity();
+            mo.addHistory(remain, newCoord);
+            mo.setMovement(mo.getNextMovement());
+            //MovingObject에 시간 중에 끝났다고 신호를 줘야함
+            
+            //newCoord = getNext(mo, totalDist/mo.getVelocity());
         }
         
         return newCoord;

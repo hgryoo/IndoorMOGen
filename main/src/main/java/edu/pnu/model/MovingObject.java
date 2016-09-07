@@ -31,10 +31,10 @@ import java.util.UUID;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.core.Generator;
+import edu.pnu.movement.FixedWayPoint;
 import edu.pnu.movement.Movement;
 import edu.pnu.movement.MovementEventListener;
-import edu.pnu.movement.RandomWayPoint;
-import edu.pnu.movement.Stop;
+import edu.pnu.movement.NoisedRandomWayPoint;
 
 /**
  * @author hgryoo
@@ -43,23 +43,31 @@ import edu.pnu.movement.Stop;
 public class MovingObject implements MovementEventListener{
     
     private String id;
+    private Coordinate coord;
+    
+    //TODO temporary assigned
     private double life = 800;
     
-    private Coordinate coord;
     //TODO temporary assigned
     private double velocity = 1;
     
     private Generator gen;
     private Movement movement;
     private List<History> history;
+    private Coordinate start;
     
     public MovingObject(Generator gen, Coordinate coord) {
         this.id = UUID.randomUUID().toString();
         this.coord = coord;
+        this.start = coord;
         this.gen = gen;
         this.history = new LinkedList<History>();
         this.history.add(new History(gen.getClock().getTime(), this.coord));
-        this.movement = new RandomWayPoint(gen.getSpaceLayer());
+        this.movement = new NoisedRandomWayPoint(gen.getSpaceLayer());
+    }
+    
+    public MovingObject(Generator gen, String startId) {
+        this(gen, gen.getSpaceLayer().getState(startId).getPoint().getCoordinate());
     }
 
     public void update(double sampling) {
@@ -70,7 +78,7 @@ public class MovingObject implements MovementEventListener{
         } else {
             movement.getNext(this, life); // life done
             life = 0;
-            movement = new Stop();
+            movement = new FixedWayPoint(gen.getSpaceLayer(), start);
             next = movement.getNext(this, sampling - life);
         }
         
@@ -89,6 +97,10 @@ public class MovingObject implements MovementEventListener{
         return this.movement;
     }
     
+    public Movement getNextMovement() {
+        return new NoisedRandomWayPoint(gen.getSpaceLayer());
+    }
+    
     public Coordinate getCoord() {
         return this.coord;
     }
@@ -99,6 +111,10 @@ public class MovingObject implements MovementEventListener{
     
     public double getVelocity() {
         return this.velocity;
+    }
+    
+    public void addHistory(double remain, Coordinate c) {
+        history.add(new History(gen.getClock().getTime() - remain, c));
     }
     
     public List<History> getHistory() {

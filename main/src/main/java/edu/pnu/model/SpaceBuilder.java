@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
@@ -38,6 +40,7 @@ import com.vividsolutions.jts.geom.LineString;
  *
  */
 public class SpaceBuilder {
+    private static final Logger LOGGER = Logger.getLogger(SpaceBuilder.class);
     
     private GeometryFactory geomFac = new GeometryFactory();
     private Map<String, State> statesMap;
@@ -46,6 +49,38 @@ public class SpaceBuilder {
     public SpaceBuilder() {
         statesMap = new HashMap<String, State>();
         transitionMap = new HashMap<String, Transition>();
+    }
+    
+    public boolean hasState(String id) {
+        return statesMap.containsKey(id);
+    }
+    
+    public State getState(String id) {
+        return statesMap.get(id);
+    }
+    
+    public boolean hasTransition(String id) {
+        return transitionMap.containsKey(id);
+    }
+    
+    public Transition getTransition(String id) {
+        return transitionMap.get(id);
+    }
+    
+    public boolean addState(State s) {
+        if(!hasState(s.getId())) {
+            statesMap.put(s.getId(), s);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean addTransition(Transition t) {
+        if(!hasTransition(t.getId())) {
+            transitionMap.put(t.getId(), t);
+            return true;
+        }
+        return false;
     }
     
     public boolean makeTransition(String id, State a, State b) {
@@ -74,6 +109,32 @@ public class SpaceBuilder {
                         s1.getPoint().getCoordinate(), 
                         s2.getPoint().getCoordinate() 
                         });
+        
+        Transition t = new Transition(id, l);
+        
+        s1.addConnects(t);
+        s2.addConnects(t);        
+        t.setState(s1, s2);
+        
+        transitionMap.put(id, t);
+        return true;
+    }
+    
+    public boolean createTransition(String id, State a, State b, LineString l) {
+        //duplicated transition key
+        if(transitionMap.containsKey(id)) {
+            return false;
+        }
+        
+        if(!statesMap.containsKey(a.getId())) {
+            statesMap.put(a.getId(), a);
+        }
+        State s1 = statesMap.get(a.getId());
+        
+        if(!statesMap.containsKey(b.getId())) {
+            statesMap.put(b.getId(), b);
+        }
+        State s2 = statesMap.get(b.getId());
         
         Transition t = new Transition(id, l);
         

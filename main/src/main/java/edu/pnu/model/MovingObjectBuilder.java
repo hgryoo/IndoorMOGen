@@ -22,18 +22,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  */
-package edu.pnu.movement;
-
-import com.vividsolutions.jts.geom.Coordinate;
-
-import edu.pnu.model.MovingObject;
+package edu.pnu.model;
 
 /**
  * @author hgryoo
  *
  */
-public class Stop implements Movement {
-    public Coordinate getNext(MovingObject movingObject, double time) {
-        return movingObject.getCoord();
-    }
+public class MovingObjectBuilder {
+
 }

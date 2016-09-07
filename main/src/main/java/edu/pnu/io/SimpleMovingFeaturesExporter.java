@@ -84,7 +84,7 @@ public class SimpleMovingFeaturesExporter {
         
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new FileWriter(new File(path.toString())));
+            writer = new BufferedWriter(new FileWriter(new File(path)));
             
             writer.write(
                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + "\n" +
@@ -121,8 +121,8 @@ public class SimpleMovingFeaturesExporter {
                     
                     writer.write(
                             "<gml:posList>" +
-                                    coordinateToString(prev.getCoord()) + " " + 
-                                    coordinateToString(next.getCoord()) +
+                                    SimpleIOUtils.coordinateToString(prev.getCoord()) + " " + 
+                                    SimpleIOUtils.coordinateToString(next.getCoord()) +
                             "</gml:posList>"
                             );
                     writer.newLine();
@@ -185,8 +185,8 @@ public class SimpleMovingFeaturesExporter {
                 
                 builder.append(
                         "<gml:posList>" +
-                                coordinateToString(prev.getCoord()) + " " + 
-                                coordinateToString(next.getCoord()) +
+                                SimpleIOUtils.coordinateToString(prev.getCoord()) + " " + 
+                                SimpleIOUtils.coordinateToString(next.getCoord()) +
                         "</gml:posList>"
                         );
                 
@@ -199,9 +199,4 @@ public class SimpleMovingFeaturesExporter {
         
         return builder.toString();
     }
-    
-    private String coordinateToString(Coordinate coord) {
-        return coord.x + " " + coord.y + " " + coord.z;
-    }
-    
 }

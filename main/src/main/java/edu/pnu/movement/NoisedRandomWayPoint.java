@@ -27,12 +27,16 @@ package edu.pnu.movement;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
+import edu.pnu.core.Generator;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.State;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.query.GenerateMO;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
@@ -40,23 +44,38 @@ import edu.pnu.util.GeometryUtil;
  * @author hgryoo
  *
  */
-public class FixedWayPoint extends AbstractWayPoint {
+public class NoisedRandomWayPoint extends AbstractWayPoint {    
+    private static final Logger LOGGER = Logger.getLogger(NoisedRandomWayPoint.class);
+    
     private DijkstraPathFinder finder = null;
     private SpaceLayer layer;
     private CoordinateGraph graph;
     
-    public FixedWayPoint(SpaceLayer layer, Coordinate wayPoint) {
+    public NoisedRandomWayPoint(SpaceLayer layer) {
         this.layer = layer;
-        this.graph = new CoordinateGraph(this.layer);
-        this.waypoint = wayPoint;
+        this.graph = new CoordinateGraph(layer);
     }
     
     public Coordinate getNext(MovingObject mo, double time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
-            //TODO START와 END는 State의 Coordinate이어야 한다.
+            
+            List<State> states = layer.getNodes();
+            int randNumber = new Random().nextInt(states.size() - 1);
+            State dest = states.get(randNumber);
+            
+            //TODO State의 Coordinate가 아닌 임의의 Coordinate가 필요
+            waypoint = dest.getPoint().getCoordinate();
+            
+            //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
             List<Coordinate> coords = finder.getShortestPath(mo.getCoord(), waypoint);
-            this.setPath(new Path(coords));
+            if(coords.isEmpty()) {
+                coords.add(mo.getCoord());
+                coords.add(graph.getNeighbors(mo.getCoord()).get(0));
+            }
+            
+            List<Coordinate> noisedCoords = GenerateMO.addNoiseToTrajectory(coords);
+            this.setPath(new Path(noisedCoords));
         }
         
         double totalDist = mo.getVelocity() * time;
@@ -64,7 +83,6 @@ public class FixedWayPoint extends AbstractWayPoint {
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
             double nextDist = GeometryUtil.distance(mo.getCoord(), nextCoord);
-            
             if(totalDist < nextDist) {
                 newCoord = GeometryUtil.fromTo(mo.getCoord(), nextCoord, totalDist);
                 totalDist = 0;
@@ -76,9 +94,15 @@ public class FixedWayPoint extends AbstractWayPoint {
             }
         }
         
-        //arrived
         if(totalDist > 0) {
-            mo.setMovement(new Stop());
+            finder = null;
+            newCoord = getPath().getNext(mo.getVelocity());
+            double remain = totalDist/mo.getVelocity();
+            mo.addHistory(remain, newCoord);
+            mo.setMovement(mo.getNextMovement());
+            //MovingObject에 시간 중에 끝났다고 신호를 줘야함
+            
+            //newCoord = getNext(mo, totalDist/mo.getVelocity());
         }
         
         return newCoord;
