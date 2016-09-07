@@ -21,9 +21,9 @@ public class GenerateMO {
 	
 	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
-		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
+		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
 		props.put("username", "system");
-		props.put("password", "STEM9987");
+		props.put("password", "stem9987");
 		
 		try {
 			session = manager.createSession(props);
@@ -37,7 +37,7 @@ public class GenerateMO {
 		final int SIGMA = 2;
 		final int CHOOSECOUNT = 5;
 		
-		if(session.equals(null))
+		if(session == null)
 			connectedDBMS();
 		
 		for(int i = 0; i < orginTrajectory.size(); i++){
