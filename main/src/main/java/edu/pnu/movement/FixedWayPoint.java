@@ -27,6 +27,8 @@ package edu.pnu.movement;
 import java.util.List;
 import java.util.Random;
 
+import org.apache.log4j.Logger;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.model.MovingObject;
@@ -41,6 +43,8 @@ import edu.pnu.util.GeometryUtil;
  *
  */
 public class FixedWayPoint extends AbstractWayPoint {
+    private static final Logger LOGGER = Logger.getLogger(FixedWayPoint.class);
+    
     private DijkstraPathFinder finder = null;
     private SpaceLayer layer;
     private CoordinateGraph graph;
@@ -55,29 +59,38 @@ public class FixedWayPoint extends AbstractWayPoint {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             //TODO START와 END는 State의 Coordinate이어야 한다.
-            List<Coordinate> coords = finder.getShortestPath(mo.getCoord(), waypoint);
-            this.setPath(new Path(coords));
+            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), waypoint);
+            if(pathCoords.isEmpty()) {
+                LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
+                mo.setMovement(new Stop());
+                return mo.getCurrentCoord();
+            }
+            Path path = new Path(pathCoords);
+            setPath(path);
         }
         
         double totalDist = mo.getVelocity() * time;
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
-            double nextDist = GeometryUtil.distance(mo.getCoord(), nextCoord);
-            
+            double nextDist = GeometryUtil.distance(mo.getCurrentCoord(), nextCoord);
             if(totalDist < nextDist) {
-                newCoord = GeometryUtil.fromTo(mo.getCoord(), nextCoord, totalDist);
+                newCoord = GeometryUtil.fromTo(mo.getCurrentCoord(), nextCoord, totalDist);
                 totalDist = 0;
             } else {
                 newCoord = nextCoord;
                 totalDist -= nextDist;
-                if(!getPath().advance())
+                getPath().advance();
+                if(getPath().hasNext() == false) {
                     break;
+                }
             }
         }
         
         //arrived
-        if(totalDist > 0) {
+        double reaminTime = (totalDist / mo.getVelocity());
+        if(reaminTime > 0) {
+            mo.addHistory(reaminTime, newCoord);
             mo.setMovement(new Stop());
         }
         

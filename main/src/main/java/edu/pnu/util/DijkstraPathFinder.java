@@ -109,11 +109,7 @@ public class DijkstraPathFinder {
                     visited.add(node); // mark the node as visited
                     updateDistance(node); // add/update neighbor nodes' distances
             }
-            
-            if(node == null) {
-                LOGGER.fatal("DijkstraPathFinder not found the destiantion");
-            }
-            
+
             // now we either have the path or such path wasn't available
             if (node == to) { // found a path
                     coords.add(0,to); 

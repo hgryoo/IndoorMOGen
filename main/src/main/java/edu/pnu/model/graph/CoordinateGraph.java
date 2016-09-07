@@ -27,8 +27,12 @@ package edu.pnu.model.graph;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -64,6 +68,10 @@ public class CoordinateGraph {
         for(State s : ss) {
             addCoordinatefromState(s);
         }
+    }
+    
+    public List<Coordinate> getCoordinates() {
+        return new ArrayList<Coordinate>(adjacencyList.keySet());
     }
     
     public State getState(Coordinate c) {
@@ -112,12 +120,44 @@ public class CoordinateGraph {
         Coordinate minKey = null;
         double min = Double.MAX_VALUE;
         for(Coordinate k : adjacencyList.keySet()) {
-            double dist = GeometryUtil.distance(c, k);
+            double dist = GeometryUtil.distance(k, c);
             if(dist < min) {
                 min = dist;
                 minKey = k;
             }
         }
         return minKey;
+    }
+    
+    public boolean isConnectedComponents() {
+        
+        Set<Coordinate> visited = new HashSet<Coordinate>();
+        Queue<Coordinate> q = new LinkedList<Coordinate>();
+        
+        Coordinate start = null;
+        for(Coordinate u : adjacencyList.keySet()) {
+            start = u;
+            break;
+        }
+        
+        if(start != null) {
+            q.add(start);
+        }
+        
+        while(!q.isEmpty()) {
+            Coordinate c = q.poll();
+            visited.add(c);
+            for(Coordinate v : adjacencyList.get(c)) {
+                if(!visited.contains(v)) {
+                    q.add(v);
+                }
+            }
+        }
+        
+        if(visited.size() == adjacencyList.size()) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

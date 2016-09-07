@@ -136,6 +136,10 @@ public class SpaceBuilder {
         }
         State s2 = statesMap.get(b.getId());
         
+        if(s1.getConnectWith(s2) != null) {
+            return false;
+        }
+        
         Transition t = new Transition(id, l);
         
         s1.addConnects(t);

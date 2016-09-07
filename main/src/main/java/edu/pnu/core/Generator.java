@@ -25,8 +25,11 @@
 package edu.pnu.core;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -34,6 +37,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.movement.Stop;
 
 /**
  * @author hgryoo
@@ -43,7 +47,9 @@ public class Generator {
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
     
     private List<Entrance> entrances = new ArrayList<Entrance>();
-    private List<MovingObject> moList = new ArrayList<MovingObject>();
+    
+    private List<MovingObject> moList = new LinkedList<MovingObject>();
+    private Set<MovingObject> dead = new HashSet<MovingObject>();
     
     private SpaceLayer space;
     private Clock clock = Clock.getInstance();
@@ -80,7 +86,12 @@ public class Generator {
             LOGGER.info("Advanced Clock : " + clock.getTime());
             
             for(MovingObject m : moList) {
-                m.update(1);
+                if(!dead.contains(m)) {
+                    m.update(1);
+                }
+                if(m.getMovement() instanceof Stop) {
+                    dead.add(m);
+                }
             }
             return true;
         } else {

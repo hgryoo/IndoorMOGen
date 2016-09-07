@@ -26,7 +26,10 @@ package edu.pnu.model;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
+
+import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -35,18 +38,20 @@ import edu.pnu.movement.FixedWayPoint;
 import edu.pnu.movement.Movement;
 import edu.pnu.movement.MovementEventListener;
 import edu.pnu.movement.NoisedRandomWayPoint;
+import edu.pnu.movement.Stop;
 
 /**
  * @author hgryoo
  *
  */
 public class MovingObject implements MovementEventListener{
+    private static final Logger LOGGER = Logger.getLogger(MovingObject.class);
     
     private String id;
     private Coordinate coord;
     
     //TODO temporary assigned
-    private double life = 800;
+    private double life;
     
     //TODO temporary assigned
     private double velocity = 1;
@@ -57,9 +62,10 @@ public class MovingObject implements MovementEventListener{
     private Coordinate start;
     
     public MovingObject(Generator gen, Coordinate coord) {
+        this.life = new Random().nextInt(100) + 400.5;
         this.id = UUID.randomUUID().toString();
         this.coord = coord;
-        this.start = coord;
+        this.start = new Coordinate(coord);
         this.gen = gen;
         this.history = new LinkedList<History>();
         this.history.add(new History(gen.getClock().getTime(), this.coord));
@@ -72,21 +78,35 @@ public class MovingObject implements MovementEventListener{
 
     public void update(double sampling) {
         Coordinate next = null;
-        if((life - sampling) >= 0) {
-            next = movement.getNext(this, sampling);
-            life -= sampling;
+        
+        double nextTime = sampling;
+        if(life != 0) {
+            if((life - sampling) > 0) {
+                next = movement.getNext(this, nextTime);
+                life -= sampling;
+            } else {
+                next = movement.getNext(this, life); // life done
+                double remain = sampling - life;
+                
+                movement = new FixedWayPoint(gen.getSpaceLayer(), start);
+                if(remain > 0) {
+                    next = movement.getNext(this, remain);
+                }
+                life = 0;
+            }
         } else {
-            movement.getNext(this, life); // life done
-            life = 0;
-            movement = new FixedWayPoint(gen.getSpaceLayer(), start);
-            next = movement.getNext(this, sampling - life);
+            next = movement.getNext(this, sampling);
+            
+            if(next == null) {
+                movement = new Stop();
+            }
         }
         
-        this.coord = next;
+        coord = next;
+        //LOGGER.info("coord = " + this.coord);
         
         //Store update
-        History h = new History(gen.getClock().getTime(), this.coord);
-        history.add(h);
+        addHistory(0, coord);
     }
     
     public void setMovement(Movement movement) {
@@ -101,7 +121,7 @@ public class MovingObject implements MovementEventListener{
         return new NoisedRandomWayPoint(gen.getSpaceLayer());
     }
     
-    public Coordinate getCoord() {
+    public Coordinate getCurrentCoord() {
         return this.coord;
     }
     
@@ -114,7 +134,9 @@ public class MovingObject implements MovementEventListener{
     }
     
     public void addHistory(double remain, Coordinate c) {
-        history.add(new History(gen.getClock().getTime() - remain, c));
+        History h = new History(gen.getClock().getTime() - remain, c);
+        LOGGER.debug(h);
+        history.add(h);
     }
     
     public List<History> getHistory() {

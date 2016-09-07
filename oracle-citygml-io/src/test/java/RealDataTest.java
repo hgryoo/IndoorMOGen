@@ -43,9 +43,9 @@ public class RealDataTest {
 			//manager.deleteSchema(props);
 			//manager.createSchema(props);
 			
-			String resource = "example/Lotte_17.gml";
+			String resource = "example/Lotte_final_0519.gml";
 			File file = Resources.getResourceAsFile(resource);
-			importer.importCityGML(props, "Test Data", file.getAbsolutePath());
+			importer.importCityGML(props, "Real Data", file.getAbsolutePath());
 			
 		} catch (Exception e) {
 			// TODO Auto-generated catch block

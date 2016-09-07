@@ -1,23 +1,18 @@
 package core;
 
-import static org.junit.Assert.*;
-
 import java.util.Iterator;
-import java.util.UUID;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
 import edu.pnu.core.Generator;
 import edu.pnu.io.SimpleCSVExporter;
 import edu.pnu.io.SimpleIndoorGMLImporter;
-import edu.pnu.io.SimpleMovingFeaturesExporter;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import oracle.spatial.util.Logger;
+import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.query.GenerateMO;
 
 public class RealMapTest {
 
@@ -39,10 +34,18 @@ public class RealMapTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws Exception {
         Generator gen = new Generator(layer);
+ 
+        CoordinateGraph graph = new CoordinateGraph(layer);
+        GenerateMO.setMinErrorDistance(graph.getCoordinates());
         
-        for(int i = 0; i < 100; i++) {
+        boolean connected = new CoordinateGraph(layer).isConnectedComponents();
+        if(!connected){
+            throw new IllegalArgumentException();
+        }
+        
+        for(int i = 0; i < 5; i++) {
             MovingObject m1 = new MovingObject(gen, "R11436");
             gen.addMovingObject(m1);
         }

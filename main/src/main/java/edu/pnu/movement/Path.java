@@ -64,11 +64,12 @@ public class Path {
     public Coordinate getNext(double velocity) {
         if(hasNext()) {
             return coordinates.get(index + 1);
+        } else {
+            return getLast();
         }
-        return getLast();
     }
     
-    private Coordinate getLast() {
+    public Coordinate getLast() {
         return coordinates.get(coordinates.size() - 1);
     }
     

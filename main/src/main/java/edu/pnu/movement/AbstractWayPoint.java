@@ -34,6 +34,14 @@ public abstract class AbstractWayPoint implements Movement {
     protected Coordinate waypoint;
     protected Path path;
     
+    protected void setWaypoint(Coordinate waypoint) {
+        this.waypoint = waypoint;
+    }
+    
+    protected Coordinate getWaypoint() {
+        return waypoint;
+    }
+    
     protected Path getPath() {
         return path;
     }

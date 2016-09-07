@@ -45,7 +45,7 @@ import edu.pnu.util.GeometryUtil;
  *
  */
 public class NoisedRandomWayPoint extends AbstractWayPoint {    
-    private static final Logger LOGGER = Logger.getLogger(NoisedRandomWayPoint.class);
+    private static final Logger LOGGER = Logger.getLogger(RandomWayPoint.class);
     
     private DijkstraPathFinder finder = null;
     private SpaceLayer layer;
@@ -56,49 +56,63 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
         this.graph = new CoordinateGraph(layer);
     }
     
+    protected Coordinate getRandomCoordinate() {
+        /* TODO we need any point on graph, 
+         * not coordinates of transition poslist 
+         */
+        List<Coordinate> coordinates = graph.getCoordinates();
+        int randNumber = new Random().nextInt(coordinates.size() - 1);
+        return coordinates.get(randNumber);
+    }
+    
     public Coordinate getNext(MovingObject mo, double time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             
-            List<State> states = layer.getNodes();
-            int randNumber = new Random().nextInt(states.size() - 1);
-            State dest = states.get(randNumber);
-            
-            //TODO State의 Coordinate가 아닌 임의의 Coordinate가 필요
-            waypoint = dest.getPoint().getCoordinate();
+            Coordinate randomDest = getRandomCoordinate();
+            setWaypoint(randomDest);
             
             //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
-            List<Coordinate> coords = finder.getShortestPath(mo.getCoord(), waypoint);
-            if(coords.isEmpty()) {
-                coords.add(mo.getCoord());
-                coords.add(graph.getNeighbors(mo.getCoord()).get(0));
+            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), getWaypoint());
+            if(pathCoords.isEmpty()) {
+                LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
+                pathCoords.add(mo.getCurrentCoord());
+                pathCoords.add(graph.getNeighbors(mo.getCurrentCoord()).get(0));
             }
             
-            List<Coordinate> noisedCoords = GenerateMO.addNoiseToTrajectory(coords);
-            this.setPath(new Path(noisedCoords));
+            List<Coordinate> noisedCoords = null;
+            try {
+                noisedCoords = GenerateMO.addNoiseToTrajectory(pathCoords);
+            } catch (Exception e) {
+                LOGGER.fatal("noisedCoords error");
+            }
+            noisedCoords.add(0, mo.getCurrentCoord());
+            
+            Path path = new Path(noisedCoords);
+            setPath(path);
         }
         
         double totalDist = mo.getVelocity() * time;
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
-            double nextDist = GeometryUtil.distance(mo.getCoord(), nextCoord);
+            double nextDist = GeometryUtil.distance(mo.getCurrentCoord(), nextCoord);
             if(totalDist < nextDist) {
-                newCoord = GeometryUtil.fromTo(mo.getCoord(), nextCoord, totalDist);
+                newCoord = GeometryUtil.fromTo(mo.getCurrentCoord(), nextCoord, totalDist);
                 totalDist = 0;
             } else {
                 newCoord = nextCoord;
                 totalDist -= nextDist;
-                if(!getPath().advance())
+                getPath().advance();
+                if(getPath().hasNext() == false) {
                     break;
+                }
             }
         }
         
-        if(totalDist > 0) {
-            finder = null;
-            newCoord = getPath().getNext(mo.getVelocity());
-            double remain = totalDist/mo.getVelocity();
-            mo.addHistory(remain, newCoord);
+        double reaminTime = (totalDist / mo.getVelocity());
+        if(reaminTime > 0) {
+            mo.addHistory(reaminTime, newCoord);
             mo.setMovement(mo.getNextMovement());
             //MovingObject에 시간 중에 끝났다고 신호를 줘야함
             
