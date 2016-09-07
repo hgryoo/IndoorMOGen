@@ -1,6 +1,7 @@
 package edu.pnu.query;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 import java.util.Random;
@@ -10,6 +11,7 @@ import org.apache.ibatis.session.SqlSession;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.common.geometry.CommonGeometryFactory;
+import edu.pnu.common.geometry.model.STGeometry;
 import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.importexport.CityGMLOracleManager;
 
@@ -18,7 +20,7 @@ public class GenerateMO {
 	static CityGMLOracleManager manager = CityGMLOracleManager.getManager();
 	static Properties props = new Properties();
 	static SqlSession session = null;
-	
+	static HashMap<STPoint, Double> minimumDistance = null;
 	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
 		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
@@ -33,6 +35,17 @@ public class GenerateMO {
 		}	
 	}
 	
+	public static void setMinErrorDistance(List<Coordinate> allTrajectoryPoints) throws Exception{
+		QueryModule queryModule = new QueryModule();
+		
+		List<STPoint> allPoints = new ArrayList<STPoint>();
+		for (Coordinate coordinate : allTrajectoryPoints) {
+			STPoint point = gf.createPoint(new double[] {coordinate.x,coordinate.y, coordinate.z});
+			allPoints.add(point);
+		}
+		minimumDistance = queryModule.getMinimumDistanceMap(session, allPoints);
+	}
+	
 	public static List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
 		final int SIGMA = 2;
 		final int CHOOSECOUNT = 5;
@@ -43,7 +56,13 @@ public class GenerateMO {
 		for(int i = 0; i < orginTrajectory.size(); i++){
 			Coordinate internalPoint = orginTrajectory.get(i);
 			STPoint internalSTPoint = gf.createPoint(new double[] {internalPoint.x, internalPoint.y, internalPoint.z});
-			internalSTPoint = addNoise(session, gf, internalSTPoint, SIGMA, CHOOSECOUNT);
+			//internalSTPoint = addNoise(session, gf, internalSTPoint, SIGMA, CHOOSECOUNT);
+			try {
+				internalSTPoint = addNoise(gf, internalSTPoint, SIGMA, CHOOSECOUNT);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			internalPoint.setCoordinate(new Coordinate(internalSTPoint.X(), internalSTPoint.Y(), internalSTPoint.Z()));
 			orginTrajectory.set(i, internalPoint);
 		}
@@ -106,6 +125,28 @@ public class GenerateMO {
 	    return (Math.random() * (n2 - n1 + 1)) + n1;
 	}
 	
+	private static STPoint addNoise(CommonGeometryFactory gf, STPoint orginP, final double sigma, final int chooseCount) throws Exception{
+		if(minimumDistance == null)
+			throw new Exception("you must called 'setMinErrorDistance' function");
+		Random random = new Random();
+		double errorDistance = minimumDistance.get(orginP);
+		if(errorDistance > sigma)
+			errorDistance = sigma;
+		
+		double errorOffSetX = 0;
+		double errorOffSetY = 0;
+		for(int i = 0; i < chooseCount; i++){
+			errorOffSetX += Math.cos(Math.toRadians(randomRange(0, 360)))*random.nextGaussian() * errorDistance;
+			errorOffSetY += Math.sin(Math.toRadians(randomRange(0, 360)))*random.nextGaussian() * errorDistance;
+		}
+		
+		errorOffSetX = errorOffSetX / chooseCount;
+		errorOffSetY = errorOffSetY / chooseCount;
+		
+		STPoint newPoint = gf.createPoint(new double[] {orginP.X() + errorOffSetX, orginP.Y() + errorOffSetY, orginP.Z()});
+		return newPoint;
+	}
+	
 	private static STPoint addNoise(SqlSession session, CommonGeometryFactory gf, STPoint orginP, final double sigma, final int chooseCount){
 		QueryModule queryModule = new QueryModule();
 		Random random = new Random();
@@ -125,7 +166,6 @@ public class GenerateMO {
 		try {
 			int beforeCellId = queryModule.intersectRoomByPoint(session, orginP);
 			int afterCellId =  queryModule.intersectRoomByPoint(session, newPoint);
-			
 			for(int i = 0; i < 3; i++){
 				errorOffSetX = errorOffSetX / 2;
 				errorOffSetY = errorOffSetY / 2;

@@ -20,8 +20,6 @@ import edu.pnu.common.geometry.model.STGeometry;
 import edu.pnu.common.geometry.model.STPoint;
 import edu.pnu.common.geometry.model.STSolid;
 import edu.pnu.common.geometry.utils.WKBGeometryBuilder;
-import net.opengis.citygml.v_2_0.dao.MapperNamespace;
-import net.opengis.citygml.v_2_0.dao.building.RoomDAO;
 import net.opengis.citygml.v_2_0.vo.building.Building;
 import net.opengis.citygml.v_2_0.vo.building.Room;
 import net.opengis.citygml.v_2_0.vo.core.CityModel;
@@ -150,7 +148,7 @@ public class QueryModule {
 		}
 		else if(geometry instanceof STSolid)
 			queryGeometry = OrcaleGeometryConvert.ConvertSolid((STSolid) geometry);
-
+		
 		for (Room room : roomList) {
 			J3D_Geometry targetSolid = room.oracleSolidGeometry;
 			boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
@@ -162,11 +160,10 @@ public class QueryModule {
 		if(resultRooms.size() == 0){
 			if(geometry instanceof STPoint){
 				STPoint p = (STPoint) geometry;
-				double buffersize = 3;
+				double buffersize = 1;
 				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
 				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
 						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
-
 				intersectRoomByPoint(session, bufferedPoint);
 			}
 			else{
@@ -175,5 +172,54 @@ public class QueryModule {
 		}	
 		
 		return resultRooms.get(0).getId();
+	}
+	
+	public HashMap<STPoint, Double> getMinimumDistanceMap(SqlSession session, final List<STPoint> geometries) throws Exception {
+		if(roomList.size() == 0){
+			getRoom(session);
+		}
+		HashMap<STPoint, Double> minimumDistance = new HashMap();
+		
+		for (STPoint p : geometries) {
+			J3D_Geometry queryGeometry = new J3D_Geometry(3001, 5783, p.X(), p.Y(), p.Z());
+			
+			for (Room room : roomList) {
+				J3D_Geometry targetSolid = room.oracleSolidGeometry;
+				boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
+				if(intersectResult){
+					Double tempMinDis = queryGeometry.distance(targetSolid, 0);
+					minimumDistance.put(p, tempMinDis);	
+				}
+			}
+			
+			if(!minimumDistance.containsKey(p)){
+				double buffersize = 2;
+				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
+						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
+				queryGeometry = OrcaleGeometryConvert.ConvertSolid(bufferedPoint);
+				
+				for (Room room : roomList) {
+					J3D_Geometry targetSolid = room.oracleSolidGeometry;
+					boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
+					if(intersectResult){
+						Double tempMinDis = queryGeometry.distance(targetSolid, 0);
+						if(minimumDistance.containsKey(p)){
+							Double prvDis = minimumDistance.get(p);
+							if(prvDis > tempMinDis)
+								minimumDistance.put(p, tempMinDis);
+						}
+						else
+							minimumDistance.put(p, tempMinDis);	
+					}
+				}
+				
+				if(!minimumDistance.containsKey(p)){
+					throw new Exception("There doesn't exist rooms that intersection by this point");
+				}
+			}
+		}
+		
+		return minimumDistance;
 	}
 }
