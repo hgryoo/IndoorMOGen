@@ -9,6 +9,7 @@ import java.util.List;
 import edu.pnu.common.geometry.model.STMultiSurface;
 import edu.pnu.common.geometry.model.STSolid;
 import net.opengis.citygml.v_2_0.vo.core.CityObject;
+import oracle.spatial.geometry.J3D_Geometry;
 
 /**
  * @author hgryoo
@@ -32,6 +33,7 @@ public class Room extends CityObject {
 	
 	public STSolid lod4SolidGeometry;
 	public STMultiSurface lod4MultiSurfaceGeometry;
+	public J3D_Geometry oracleSolidGeometry;
 	/**
 	 * @return the lod4Solid
 	 */
