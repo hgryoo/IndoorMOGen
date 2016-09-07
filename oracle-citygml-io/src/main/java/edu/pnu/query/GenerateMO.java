@@ -36,7 +36,10 @@ public class GenerateMO {
 	}
 	
 	public static void setMinErrorDistance(List<Coordinate> allTrajectoryPoints) throws Exception{
-		QueryModule queryModule = new QueryModule();
+	    if(session == null)
+                connectedDBMS();
+	    
+	        QueryModule queryModule = new QueryModule();
 		
 		List<STPoint> allPoints = new ArrayList<STPoint>();
 		for (Coordinate coordinate : allTrajectoryPoints) {
