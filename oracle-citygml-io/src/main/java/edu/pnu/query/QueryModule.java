@@ -111,16 +111,39 @@ public class QueryModule {
 		return citymodel;
 	}
 	
-	public Integer intersectRoomByPoint(SqlSession session, final String modelName, final STGeometry geometry) throws Exception {
-		HashMap<String, Object> param = new HashMap<String, Object>();
-		byte[] geo = WKBGeometryBuilder.getBuilder().asBinary(geometry);
-		param.put("id", modelName);
-		param.put("geo", geo);
-		
-		//List<Room> resultRooms = session.selectList(MapperNamespace.ROOM_INTERSECT_QUERY, param);
-		List<Room> resultRooms = new ArrayList<Room>();
+	private static List<Room> roomList = new ArrayList<Room>();
+	private static void getRoom(SqlSession session){
 		Connection conn = session.getConnection();
+		String sql = "SELECT "
+				+ "R.ID, R.LOD4SOLID"
+				+ " FROM ROOM R";
+		try {
+			PreparedStatement pstm = conn.prepareStatement(sql);
+			ResultSet rs = pstm.executeQuery(sql);
+			while(rs.next()) {
+				int id = rs.getInt(1);
+				Struct lod4solid = (Struct) rs.getObject(2);
+				JGeometry lod4solidGeometry = J3D_Geometry.loadJS(lod4solid);
+				J3D_Geometry targetSolid = new J3D_Geometry(lod4solidGeometry.getType(), lod4solidGeometry.getSRID(), lod4solidGeometry.getElemInfo(), lod4solidGeometry.getOrdinatesArray());
+				Room room =  new Room();
+				room.setId(id);
+				room.oracleSolidGeometry = targetSolid;
+				roomList.add(room);
+			}
+			pstm.close();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	}
+	
+	public Integer intersectRoomByPoint(SqlSession session, final STGeometry geometry) throws Exception {
+		if(roomList.size() == 0){
+			getRoom(session);
+		}
+		List<Room> resultRooms = new ArrayList<Room>();
 		J3D_Geometry queryGeometry = null;
+		
 		if(geometry instanceof STPoint){
 			STPoint p = (STPoint) geometry;
 			queryGeometry = new J3D_Geometry(3001, 5783, p.X(), p.Y(), p.Z());
@@ -128,54 +151,12 @@ public class QueryModule {
 		else if(geometry instanceof STSolid)
 			queryGeometry = OrcaleGeometryConvert.ConvertSolid((STSolid) geometry);
 		
-		String sql = "SELECT "
-				+ "R.ID, R.BUILDING_ID,"
-				+ "R.CLAZZ, R.CLASS_CODESPACE, R.FUNC, R.FUNC_CODESPACE, R.USAGE, R.USAGE_CODESPACE,"
-				+ "R.LOD4SOLID,R.LOD4MULTISURFACE"
-				+ " FROM ROOM R "
-				+ "INNER JOIN CityObject CO on R.ID = CO.ID "
-				+ "INNER JOIN Building B on R.BUILDING_ID = B.ID "
-				+ "INNER JOIN CityObjectMember COM on COM.CITYOBJECT_ID = B.ID "
-				+ "INNER JOIN CityModel CM on COM.CITYMODEL_ID = CM.ID "
-				+ " WHERE "
-				+ "CM.SID = '" + modelName + "'";
-		try {
-			PreparedStatement pstm = conn.prepareStatement(sql);
-			ResultSet rs = pstm.executeQuery(sql);
-			while(rs.next()) {
-				int id = rs.getInt(1);	
-				int buildingid =rs.getInt(2);
-				String clazz = rs.getString(3); 
-				String classCodeSpace = rs.getString(4);
-				String func = rs.getString(5);
-				String funcCodeSpace = rs.getString(6);
-				String usage = rs.getString(7);
-				String usageCodeSpace = rs.getString(8);
-				Struct lod4solid = (Struct) rs.getObject(9);
-				Struct lod4multisurface = (Struct) rs.getObject(10);
-				JGeometry lod4solidGeometry = J3D_Geometry.loadJS(lod4solid);
-				J3D_Geometry targetSolid = new J3D_Geometry(lod4solidGeometry.getType(), lod4solidGeometry.getSRID(), lod4solidGeometry.getElemInfo(), lod4solidGeometry.getOrdinatesArray());
-				//JGeometry lod4multisurfaceGeometry = J3D_Geometry.loadJS(lod4multisurface);
-				
-				boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
-				if(intersectResult){
-					//System.out.println(intersectResult);
-					Room room =  new Room();
-					room.setId(id);
-					room.setClazz(clazz);
-					room.setClassCodeSpace(classCodeSpace);
-					room.setFunc(func);
-					room.setFuncCodeSpace(funcCodeSpace);
-					room.setUsage(usage);
-					room.setUsageCodeSpace(usageCodeSpace);
-					// 湲고븯遺�遺� �엯�젰 �븘�슂...�븘�삤 �뀑�뀑
-					resultRooms.add(room);
-				}
+		for (Room room : roomList) {
+			J3D_Geometry targetSolid = room.oracleSolidGeometry;
+			boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
+			if(intersectResult){
+				resultRooms.add(room);
 			}
-			pstm.close();
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
 		}
 		
 		if(resultRooms.size() == 0){
@@ -185,15 +166,13 @@ public class QueryModule {
 				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
 				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
 						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
-				intersectRoomByPoint(session, modelName, bufferedPoint);
+				intersectRoomByPoint(session, bufferedPoint);
 			}
 			else{
 				throw new Exception("Query failed");
 			}
-		}
-			
+		}	
 		
 		return resultRooms.get(0).getId();
 	}
-	
 }

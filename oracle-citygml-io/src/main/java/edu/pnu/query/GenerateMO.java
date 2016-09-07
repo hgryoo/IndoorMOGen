@@ -123,13 +123,13 @@ public class GenerateMO {
 		STPoint newPoint = gf.createPoint(new double[] {orginP.X() + errorOffSetX, orginP.Y() + errorOffSetY, orginP.Z()});
 		
 		try {
-			int beforeCellId = queryModule.intersectRoomByPoint(session, "Test Data", orginP);
-			int afterCellId =  queryModule.intersectRoomByPoint(session, "Test Data", newPoint);
+			int beforeCellId = queryModule.intersectRoomByPoint(session, orginP);
+			int afterCellId =  queryModule.intersectRoomByPoint(session, newPoint);
 			for(int i = 0; i < 3; i++){
 				errorOffSetX = errorOffSetX / 2;
 				errorOffSetY = errorOffSetY / 2;
 				newPoint = gf.createPoint(new double[] {orginP.X() + errorOffSetX, orginP.Y() + errorOffSetY, orginP.Z()});
-				afterCellId =  queryModule.intersectRoomByPoint(session, "Test Data", newPoint);
+				afterCellId =  queryModule.intersectRoomByPoint(session, newPoint);
 				if(beforeCellId == afterCellId)
 					break;
 			}
