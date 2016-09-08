@@ -23,9 +23,9 @@ public class GenerateMO {
 	static HashMap<Coordinate, Double> minimumDistance = null;
 	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
-		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
+		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
 		props.put("username", "system");
-		props.put("password", "stem9987");
+		props.put("password", "STEM9987");
 		
 		try {
 			session = manager.createSession(props);
@@ -49,12 +49,12 @@ public class GenerateMO {
 		if(session == null)
 			connectedDBMS();
 		
-		for(int i = 0; i < orginTrajectory.size(); i++){
+		for(int i = 1; i < orginTrajectory.size(); i++){
 			Coordinate internalPoint = orginTrajectory.get(i);
 			STPoint internalSTPoint = gf.createPoint(new double[] {internalPoint.x, internalPoint.y, internalPoint.z});
 			//internalSTPoint = addNoise(session, gf, internalSTPoint, SIGMA, CHOOSECOUNT);
 			try {
-				internalSTPoint = addNoise(gf, internalSTPoint, SIGMA, CHOOSECOUNT);
+				internalSTPoint = addNoise(gf, internalPoint, SIGMA, CHOOSECOUNT);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -121,11 +121,19 @@ public class GenerateMO {
 	    return (Math.random() * (n2 - n1 + 1)) + n1;
 	}
 	
-	private static STPoint addNoise(CommonGeometryFactory gf, STPoint orginP, final double sigma, final int chooseCount) throws Exception{
+	private static STPoint addNoise(CommonGeometryFactory gf, Coordinate orginP, final double sigma, final int chooseCount) throws Exception{
 		if(minimumDistance == null)
 			throw new Exception("you must called 'setMinErrorDistance' function");
 		Random random = new Random();
-		double errorDistance = minimumDistance.get(orginP);
+		double errorDistance = 0;
+		if(minimumDistance.containsKey(orginP)){
+			errorDistance = minimumDistance.get(orginP);	
+		}
+		else{
+			errorDistance = sigma;
+		}
+		
+		
 		if(errorDistance > sigma)
 			errorDistance = sigma;
 		
@@ -139,7 +147,7 @@ public class GenerateMO {
 		errorOffSetX = errorOffSetX / chooseCount;
 		errorOffSetY = errorOffSetY / chooseCount;
 		
-		STPoint newPoint = gf.createPoint(new double[] {orginP.X() + errorOffSetX, orginP.Y() + errorOffSetY, orginP.Z()});
+		STPoint newPoint = gf.createPoint(new double[] {orginP.x + errorOffSetX, orginP.y + errorOffSetY, orginP.z});
 		return newPoint;
 	}
 	

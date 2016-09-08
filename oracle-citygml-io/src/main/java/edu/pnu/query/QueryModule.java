@@ -198,12 +198,12 @@ public class QueryModule {
 			if(!minimumDistance.containsKey(p)){
 				double buffersize = 5;
 				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.x - buffersize, p.y - buffersize, p.z}), 
-						gf.createPoint(new double[] {p.x + buffersize, p.x + buffersize, p.z+ buffersize}));
+						gf.createPoint(new double[] {p.x + buffersize, p.y + buffersize, p.z+ buffersize}));
 				queryGeometry = OrcaleGeometryConvert.ConvertSolid(bufferedPoint);
 				
 				for (Room room : roomList) {
 					J3D_Geometry targetSolid = room.oracleSolidGeometry;
-					boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
+					boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.1);
 					if(intersectResult){
 						Double tempMinDis = queryGeometry.distance(targetSolid, 0);
 						if(minimumDistance.containsKey(p)){

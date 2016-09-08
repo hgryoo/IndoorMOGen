@@ -34,9 +34,9 @@ public class RealDataTest {
 		CityGMLOracleImporter importer = new CityGMLOracleImporter();
 		Properties props = new Properties();	
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
-		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
+		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
 		props.put("username", "system");
-		props.put("password", "stem9987");
+		props.put("password", "STEM9987");
 		
 		try {
 			CityGMLOracleManager manager = CityGMLOracleManager.getManager();
