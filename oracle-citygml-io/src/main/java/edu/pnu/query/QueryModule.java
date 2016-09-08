@@ -188,7 +188,8 @@ public class QueryModule {
 				boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
 				if(intersectResult){
 					Double tempMinDis = queryGeometry.distance(targetSolid, 0);
-					minimumDistance.put(p, tempMinDis);	
+					minimumDistance.put(p, tempMinDis);
+					break;
 				}
 			}
 			
