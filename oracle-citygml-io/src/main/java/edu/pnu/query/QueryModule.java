@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.apache.ibatis.session.SqlSession;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 import edu.pnu.common.geometry.CommonGeometryFactory;
 import edu.pnu.common.geometry.model.STGeometry;
 import edu.pnu.common.geometry.model.STPoint;
@@ -174,14 +176,14 @@ public class QueryModule {
 		return resultRooms.get(0).getId();
 	}
 	
-	public HashMap<STPoint, Double> getMinimumDistanceMap(SqlSession session, final List<STPoint> geometries) throws Exception {
+	public HashMap<Coordinate, Double> getMinimumDistanceMap(SqlSession session, final List<Coordinate> geometries) throws Exception {
 		if(roomList.size() == 0){
 			getRoom(session);
 		}
-		HashMap<STPoint, Double> minimumDistance = new HashMap();
-		
-		for (STPoint p : geometries) {
-			J3D_Geometry queryGeometry = new J3D_Geometry(3001, 5783, p.X(), p.Y(), p.Z());
+		HashMap<Coordinate, Double> minimumDistance = new HashMap();
+		CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
+		for (Coordinate p : geometries) {
+			J3D_Geometry queryGeometry = new J3D_Geometry(3001, 5783, p.x, p.y, p.z);
 			
 			for (Room room : roomList) {
 				J3D_Geometry targetSolid = room.oracleSolidGeometry;
@@ -195,9 +197,8 @@ public class QueryModule {
 			
 			if(!minimumDistance.containsKey(p)){
 				double buffersize = 2;
-				CommonGeometryFactory gf = new CommonGeometryFactory(true, false);
-				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.X() - buffersize, p.Y() - buffersize, p.Z()}), 
-						gf.createPoint(new double[] {p.X() + buffersize, p.Y() + buffersize, p.Z()+ buffersize}));
+				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.x - buffersize, p.y - buffersize, p.z}), 
+						gf.createPoint(new double[] {p.x + buffersize, p.x + buffersize, p.z+ buffersize}));
 				queryGeometry = OrcaleGeometryConvert.ConvertSolid(bufferedPoint);
 				
 				for (Room room : roomList) {

@@ -20,7 +20,7 @@ public class GenerateMO {
 	static CityGMLOracleManager manager = CityGMLOracleManager.getManager();
 	static Properties props = new Properties();
 	static SqlSession session = null;
-	static HashMap<STPoint, Double> minimumDistance = null;
+	static HashMap<Coordinate, Double> minimumDistance = null;
 	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
 		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
@@ -37,16 +37,9 @@ public class GenerateMO {
 	
 	public static void setMinErrorDistance(List<Coordinate> allTrajectoryPoints) throws Exception{
 	    if(session == null)
-                connectedDBMS();
-	    
-	        QueryModule queryModule = new QueryModule();
-		
-		List<STPoint> allPoints = new ArrayList<STPoint>();
-		for (Coordinate coordinate : allTrajectoryPoints) {
-			STPoint point = gf.createPoint(new double[] {coordinate.x,coordinate.y, coordinate.z});
-			allPoints.add(point);
-		}
-		minimumDistance = queryModule.getMinimumDistanceMap(session, allPoints);
+	    	connectedDBMS();
+	    QueryModule queryModule = new QueryModule();
+		minimumDistance = queryModule.getMinimumDistanceMap(session, allTrajectoryPoints);
 	}
 	
 	public static List<Coordinate> addNoiseToTrajectory(List<Coordinate> orginTrajectory){
