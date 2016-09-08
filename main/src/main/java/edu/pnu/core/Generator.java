@@ -90,7 +90,7 @@ public class Generator {
                     m.update(1);
                 }
                 if(m.getMovement() instanceof Stop) {
-                    dead.add(m);
+                    //dead.add(m);
                 }
             }
             return true;

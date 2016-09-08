@@ -196,7 +196,7 @@ public class QueryModule {
 			}
 			
 			if(!minimumDistance.containsKey(p)){
-				double buffersize = 2;
+				double buffersize = 5;
 				STSolid bufferedPoint = gf.createBox3D(gf.createPoint(new double[] {p.x - buffersize, p.y - buffersize, p.z}), 
 						gf.createPoint(new double[] {p.x + buffersize, p.x + buffersize, p.z+ buffersize}));
 				queryGeometry = OrcaleGeometryConvert.ConvertSolid(bufferedPoint);
@@ -217,7 +217,7 @@ public class QueryModule {
 				}
 				
 				if(!minimumDistance.containsKey(p)){
-					throw new Exception("There doesn't exist rooms that intersection by this point");
+					throw new Exception("There doesn't exist rooms that intersection by this point = " + p);
 				}
 			}
 		}

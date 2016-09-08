@@ -76,7 +76,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), getWaypoint());
             if(pathCoords.isEmpty()) {
                 LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
-                pathCoords.add(mo.getCurrentCoord());
+                pathCoords.add(graph.getNearestCoordinte(mo.getCurrentCoord()));
                 pathCoords.add(graph.getNeighbors(mo.getCurrentCoord()).get(0));
             }
             
@@ -86,7 +86,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             } catch (Exception e) {
                 LOGGER.fatal("noisedCoords error");
             }
-            noisedCoords.add(0, mo.getCurrentCoord());
+            //noisedCoords.add(0, mo.getCurrentCoord());
             
             Path path = new Path(noisedCoords);
             setPath(path);

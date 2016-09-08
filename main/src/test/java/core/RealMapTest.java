@@ -21,7 +21,7 @@ public class RealMapTest {
     @Before
     public void setUp() throws Exception {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/SAMPLE_DATA_AVENUEL1F2F_2D.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/SAMPLE_DATA_AVENUEL1F2F_3D.gml");
             layer = importer.getSpaceLayer();
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -45,8 +45,8 @@ public class RealMapTest {
             throw new IllegalArgumentException();
         }
         
-        for(int i = 0; i < 5; i++) {
-            MovingObject m1 = new MovingObject(gen, "R11436");
+        for(int i = 0; i < 20; i++) {
+            MovingObject m1 = new MovingObject(gen, "R11438");
             gen.addMovingObject(m1);
         }
         
