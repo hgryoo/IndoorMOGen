@@ -34,6 +34,7 @@ public class Room extends CityObject {
 	public STSolid lod4SolidGeometry;
 	public STMultiSurface lod4MultiSurfaceGeometry;
 	public J3D_Geometry oracleSolidGeometry;
+	public List<J3D_Geometry> roomBoundaryOracleGeometry;
 	/**
 	 * @return the lod4Solid
 	 */

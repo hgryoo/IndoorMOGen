@@ -124,7 +124,10 @@ public class QueryModule {
 				int id = rs.getInt(1);
 				Struct lod4solid = (Struct) rs.getObject(2);
 				JGeometry lod4solidGeometry = J3D_Geometry.loadJS(lod4solid);
-				J3D_Geometry targetSolid = new J3D_Geometry(lod4solidGeometry.getType(), lod4solidGeometry.getSRID(), lod4solidGeometry.getElemInfo(), lod4solidGeometry.getOrdinatesArray());
+				J3D_Geometry targetSolid = new J3D_Geometry(lod4solidGeometry.getType(), 
+						lod4solidGeometry.getSRID(), 
+						lod4solidGeometry.getElemInfo(), 
+						lod4solidGeometry.getOrdinatesArray());
 				Room room =  new Room();
 				room.setId(id);
 				room.oracleSolidGeometry = targetSolid;
@@ -135,6 +138,34 @@ public class QueryModule {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		for (Room room : roomList) {
+			sql = "SELECT B.LOD4MULTISURFACE FROM buildingboundary B"
+					+" INNER JOIN ROOM R on B.ROOM_ID = R.ID"
+					+" WHERE R.ID = " + room.getId() 
+					+ " AND B.BOUNDARY_TYPE = 'InteriorWallSurface'";
+			try {
+				PreparedStatement pstm = conn.prepareStatement(sql);
+				ResultSet rs = pstm.executeQuery(sql);
+				while(rs.next()) {
+					Struct lod4multiSurface = (Struct) rs.getObject(1);
+					JGeometry lod4multiSurfaceGeometry = J3D_Geometry.loadJS(lod4multiSurface);
+					J3D_Geometry targetSurface = new J3D_Geometry(lod4multiSurfaceGeometry.getType(), 
+							lod4multiSurfaceGeometry.getSRID(), 
+							lod4multiSurfaceGeometry.getElemInfo(), 
+							lod4multiSurfaceGeometry.getOrdinatesArray());
+					if(room.roomBoundaryOracleGeometry == null){
+						room.roomBoundaryOracleGeometry = new ArrayList<J3D_Geometry>();
+					}
+					room.roomBoundaryOracleGeometry.add(targetSurface);
+				}
+				pstm.close();
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+		
 	}
 	
 	public Integer intersectRoomByPoint(SqlSession session, final STGeometry geometry) throws Exception {
@@ -189,8 +220,16 @@ public class QueryModule {
 				J3D_Geometry targetSolid = room.oracleSolidGeometry;
 				boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.01);
 				if(intersectResult){
-					Double tempMinDis = queryGeometry.distance(targetSolid, 0);
-					minimumDistance.put(p, tempMinDis);
+					for (J3D_Geometry targetSurface : room.roomBoundaryOracleGeometry) {
+						Double tempMinDis = targetSurface.distance(queryGeometry, 0.01); 
+						if(minimumDistance.containsKey(p)){
+							Double prvDis = minimumDistance.get(p);
+							if(prvDis > tempMinDis)
+								minimumDistance.put(p, tempMinDis);
+						}
+						else
+							minimumDistance.put(p, tempMinDis);	
+					}
 					break;
 				}
 			}
@@ -205,14 +244,16 @@ public class QueryModule {
 					J3D_Geometry targetSolid = room.oracleSolidGeometry;
 					boolean intersectResult = queryGeometry.anyInteract(targetSolid, 0.1);
 					if(intersectResult){
-						Double tempMinDis = queryGeometry.distance(targetSolid, 0);
-						if(minimumDistance.containsKey(p)){
-							Double prvDis = minimumDistance.get(p);
-							if(prvDis > tempMinDis)
-								minimumDistance.put(p, tempMinDis);
-						}
-						else
-							minimumDistance.put(p, tempMinDis);	
+						for (J3D_Geometry targetSurface : room.roomBoundaryOracleGeometry) {
+							Double tempMinDis = targetSurface.distance(queryGeometry, 0.01); 
+							if(minimumDistance.containsKey(p)){
+								Double prvDis = minimumDistance.get(p);
+								if(prvDis > tempMinDis)
+									minimumDistance.put(p, tempMinDis);
+							}
+							else
+								minimumDistance.put(p, tempMinDis);	
+						}	
 					}
 				}
 				
