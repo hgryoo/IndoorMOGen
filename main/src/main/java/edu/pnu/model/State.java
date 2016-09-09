@@ -38,7 +38,7 @@ public class State implements Comparable<State> {
     private String id;
     private Point point;
     private List<Transition> connects = new ArrayList<Transition>();
-    private String duality;
+    private CellSpace duality;
     
     public State(String id, Point p) {
         this.id = id;

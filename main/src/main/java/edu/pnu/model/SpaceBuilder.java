@@ -43,8 +43,10 @@ public class SpaceBuilder {
     private static final Logger LOGGER = Logger.getLogger(SpaceBuilder.class);
     
     private GeometryFactory geomFac = new GeometryFactory();
+    
     private Map<String, State> statesMap;
     private Map<String, Transition> transitionMap;
+    private Map<String, CellSpace> cellspaceMap;
     
     public SpaceBuilder() {
         statesMap = new HashMap<String, State>();
@@ -81,6 +83,18 @@ public class SpaceBuilder {
             return true;
         }
         return false;
+    }
+    
+    public boolean addCellSpace(CellSpace c) {
+        if(!cellspaceMap.containsKey(c)) {
+            cellspaceMap.put(c.getId(), c);
+            return true;
+        }
+        return false;
+    }
+    
+    public CellSpace getCellSpace(String id) {
+        return cellspaceMap.get(id);
     }
     
     public boolean makeTransition(String id, State a, State b) {
