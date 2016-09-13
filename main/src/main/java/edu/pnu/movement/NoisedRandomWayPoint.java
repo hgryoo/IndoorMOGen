@@ -31,10 +31,8 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.core.Generator;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
 import edu.pnu.model.graph.CoordinateGraph;
 import edu.pnu.query.GenerateMO;
 import edu.pnu.util.DijkstraPathFinder;
@@ -51,9 +49,8 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
     private SpaceLayer layer;
     private CoordinateGraph graph;
     
-    public NoisedRandomWayPoint(SpaceLayer layer) {
-        this.layer = layer;
-        this.graph = new CoordinateGraph(layer);
+    public NoisedRandomWayPoint(CoordinateGraph graph) {
+        this.graph = graph;
     }
     
     protected Coordinate getRandomCoordinate() {
@@ -76,8 +73,13 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), getWaypoint());
             if(pathCoords.isEmpty()) {
                 LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
-                pathCoords.add(graph.getNearestCoordinte(mo.getCurrentCoord()));
-                pathCoords.add(graph.getNeighbors(mo.getCurrentCoord()).get(0));
+                pathCoords.add(mo.getCurrentCoord());
+                Coordinate nearest = graph.getNearestCoordinte(mo.getCurrentCoord());
+                List<Coordinate> neighbors = graph.getNeighbors(nearest);
+                if(neighbors.isEmpty()) {
+                    graph.getNeighbors(nearest);
+                }
+                pathCoords.add(nearest);
             }
             
             List<Coordinate> noisedCoords = null;
@@ -86,7 +88,6 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             } catch (Exception e) {
                 LOGGER.fatal("noisedCoords error");
             }
-            //noisedCoords.add(0, mo.getCurrentCoord());
             
             Path path = new Path(noisedCoords);
             setPath(path);

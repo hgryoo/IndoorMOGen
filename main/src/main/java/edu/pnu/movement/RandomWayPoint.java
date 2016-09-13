@@ -51,9 +51,8 @@ public class RandomWayPoint extends AbstractWayPoint {
     private SpaceLayer layer;
     private CoordinateGraph graph;
     
-    public RandomWayPoint(SpaceLayer layer) {
-        this.layer = layer;
-        this.graph = new CoordinateGraph(layer);
+    public RandomWayPoint(CoordinateGraph graph) {
+        this.graph = graph;
     }
     
     protected Coordinate getRandomCoordinate() {

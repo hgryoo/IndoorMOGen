@@ -51,6 +51,7 @@ public class SpaceBuilder {
     public SpaceBuilder() {
         statesMap = new HashMap<String, State>();
         transitionMap = new HashMap<String, Transition>();
+        cellspaceMap = new HashMap<String, CellSpace>();
     }
     
     public boolean hasState(String id) {
@@ -150,9 +151,9 @@ public class SpaceBuilder {
         }
         State s2 = statesMap.get(b.getId());
         
-        if(s1.getConnectWith(s2) != null) {
+        /*if(s1.getConnectWith(s2) != null) {
             return false;
-        }
+        }*/
         
         Transition t = new Transition(id, l);
         

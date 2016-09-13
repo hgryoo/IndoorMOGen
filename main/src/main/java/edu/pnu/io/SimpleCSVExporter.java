@@ -95,8 +95,8 @@ public class SimpleCSVExporter {
                 output.id = mvId;
                 output.start = prev.getTime();
                 output.end = next.getTime();
-                output.sCoord = SimpleIOUtils.coordinateToString(prev.getCoord());
-                output.eCoord = SimpleIOUtils.coordinateToString(next.getCoord());
+                output.sCoord = SimpleIOUtils.coordinateToStringFormat(prev.getCoord(), 5);
+                output.eCoord = SimpleIOUtils.coordinateToStringFormat(next.getCoord(), 5);
                 outputList.add(output);
                 prev = next;
             }
@@ -115,9 +115,9 @@ public class SimpleCSVExporter {
                 writer.write(",");
                 writer.write(String.valueOf(output.end));
                 writer.write(",");
-                writer.write(String.valueOf(output.sCoord));
+                writer.write(output.sCoord);
                 writer.write(",");
-                writer.write(String.valueOf(output.eCoord));
+                writer.write(output.eCoord);
                 writer.newLine();
             }
         } catch (IOException e) {

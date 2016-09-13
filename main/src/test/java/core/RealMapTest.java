@@ -1,6 +1,8 @@
 package core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +23,7 @@ public class RealMapTest {
     @Before
     public void setUp() throws Exception {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/SAMPLE_DATA_AVENUEL1F2F_3D.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/SAMPLE_DATA_AVENUEL1F2F_2D.gml");
             layer = importer.getSpaceLayer();
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -36,22 +38,53 @@ public class RealMapTest {
     @Test
     public void test() throws Exception {
         Generator gen = new Generator(layer);
- 
-        CoordinateGraph graph = new CoordinateGraph(layer);
-        GenerateMO.setMinErrorDistance(graph.getCoordinates());
         
-        boolean connected = new CoordinateGraph(layer).isConnectedComponents();
+        boolean connected = gen.getGraph().isConnectedComponents();
         if(!connected){
             throw new IllegalArgumentException();
         }
         
-        for(int i = 0; i < 20; i++) {
-            MovingObject m1 = new MovingObject(gen, "R11438");
+        /*for(int i = 0; i < 50; i++) {
+            MovingObject m1 = new MovingObject(gen, "R11437");
+            gen.addMovingObject(m1);
+        }*/
+        
+        List<String> entrances = new ArrayList<String>();
+        
+        entrances.add("R11436");
+        entrances.add("R11437");
+        entrances.add("R11438");
+        entrances.add("R11439");
+        entrances.add("R11440");
+        entrances.add("R11441");
+        
+        /*entrances.add("R11442");
+        entrances.add("R11443");
+        entrances.add("R11444");
+        entrances.add("R11445");
+        entrances.add("R11448");*/
+        gen.setEntrance(entrances);
+        
+        int idx = 0;
+        
+        for(int i = 0; i < entrances.size(); i++) {
+            MovingObject m1 = new MovingObject(gen, entrances.get(i));
             gen.addMovingObject(m1);
         }
         
-        int idx = 0;
-        while(gen.advance());
+/*        MovingObject m1 = new MovingObject(gen, entrances.get(0));
+        gen.addMovingObject(m1);
+        */
+        int entSize = entrances.size();
+        while(gen.advance()) {
+            if(idx % 3 == 0 && idx < 100) {
+                for(int i = 0; i < entSize; i++) {
+                    MovingObject m1 = new MovingObject(gen, entrances.get(i));
+                    gen.addMovingObject(m1);
+                }
+            }
+            idx++;
+        }
         
         SimpleCSVExporter csvExt = new SimpleCSVExporter("realTest");
         Iterator<MovingObject> it = gen.getMovingObjectIterator();

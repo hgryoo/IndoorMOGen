@@ -37,8 +37,9 @@ import edu.pnu.core.Generator;
 import edu.pnu.movement.FixedWayPoint;
 import edu.pnu.movement.Movement;
 import edu.pnu.movement.MovementEventListener;
-import edu.pnu.movement.NoisedRandomWayPoint;
+import edu.pnu.movement.RandomWayPoint;
 import edu.pnu.movement.Stop;
+import edu.pnu.util.DijkstraPathFinder;
 
 /**
  * @author hgryoo
@@ -54,7 +55,7 @@ public class MovingObject implements MovementEventListener{
     private double life;
     
     //TODO temporary assigned
-    private double velocity = 1;
+    private double velocity;
     
     private Generator gen;
     private Movement movement;
@@ -63,13 +64,14 @@ public class MovingObject implements MovementEventListener{
     
     public MovingObject(Generator gen, Coordinate coord) {
         this.life = new Random().nextInt(100) + 400.5;
+        this.velocity = ((new Random().nextDouble() - 0.5) / 5) * 2 + 1.0;
         this.id = UUID.randomUUID().toString();
         this.coord = coord;
         this.start = new Coordinate(coord);
         this.gen = gen;
         this.history = new LinkedList<History>();
         this.history.add(new History(gen.getClock().getTime(), this.coord));
-        this.movement = new NoisedRandomWayPoint(gen.getSpaceLayer());
+        this.movement = new RandomWayPoint(gen.getGraph());
     }
     
     public MovingObject(Generator gen, String startId) {
@@ -88,7 +90,7 @@ public class MovingObject implements MovementEventListener{
                 next = movement.getNext(this, life); // life done
                 double remain = sampling - life;
                 
-                movement = new FixedWayPoint(gen.getSpaceLayer(), start);
+                movement = new FixedWayPoint(gen.getGraph(), start);
                 if(remain > 0) {
                     next = movement.getNext(this, remain);
                 }
@@ -118,7 +120,7 @@ public class MovingObject implements MovementEventListener{
     }
     
     public Movement getNextMovement() {
-        return new NoisedRandomWayPoint(gen.getSpaceLayer());
+        return new RandomWayPoint(gen.getGraph());
     }
     
     public Coordinate getCurrentCoord() {
@@ -145,5 +147,23 @@ public class MovingObject implements MovementEventListener{
     
     public String getId() {
         return this.id;
+    }
+    
+    public List<Coordinate> getPossibleEntrance(Coordinate c) {
+        List<Coordinate> pathCoords = null;
+        
+        DijkstraPathFinder finder = new DijkstraPathFinder(gen.getGraph());
+        
+        List<String> ents = gen.getEntrance();
+        int entSize = ents.size();
+        Coordinate nearest = gen.getGraph().getNearestCoordinte(c);
+        for(int i = 0; i < entSize; i++) {
+            Coordinate newWayPoint = gen.getSpaceLayer().getState(ents.get(i)).getPoint().getCoordinate();
+            pathCoords = finder.getShortestPath(nearest, newWayPoint);
+            if(!pathCoords.isEmpty()) {
+                break;
+            }   
+        }
+        return pathCoords;
     }
 }

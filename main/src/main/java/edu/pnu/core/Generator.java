@@ -37,7 +37,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.graph.CoordinateGraph;
 import edu.pnu.movement.Stop;
+import edu.pnu.query.GenerateMO;
+import edu.pnu.util.DijkstraPathFinder;
 
 /**
  * @author hgryoo
@@ -46,21 +49,29 @@ import edu.pnu.movement.Stop;
 public class Generator {
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
     
-    private List<Entrance> entrances = new ArrayList<Entrance>();
+    private List<String> entrances = new ArrayList<String>();
     
     private List<MovingObject> moList = new LinkedList<MovingObject>();
     private Set<MovingObject> dead = new HashSet<MovingObject>();
     
     private SpaceLayer space;
+    private CoordinateGraph graph;
+    
     private Clock clock = Clock.getInstance();
     
     public static final double SAMPLING = 1.0;
     private final double START = 0.0;
     private final double END = 1000.0;
     
-    public Generator(SpaceLayer layer) {
+    public Generator(SpaceLayer layer) throws Exception {
         this.space = layer;
+        this.graph = new CoordinateGraph(space);
+        GenerateMO.setMinErrorDistance(graph.getCoordinates());
         clock.reset();
+    }
+    
+    public CoordinateGraph getGraph() {
+        return graph;
     }
     
     public void setSpace(SpaceLayer space) {
@@ -90,7 +101,7 @@ public class Generator {
                     m.update(1);
                 }
                 if(m.getMovement() instanceof Stop) {
-                    //dead.add(m);
+                    dead.add(m);
                 }
             }
             return true;
@@ -110,5 +121,13 @@ public class Generator {
     public Coordinate getNearestEntranceCoord(Coordinate c) {
         //TODO
         return null;
+    }
+
+    public void setEntrance(List<String> entrances) {
+        this.entrances = entrances;
+    }
+    
+    public List<String> getEntrance() {
+        return entrances;
     }
 }

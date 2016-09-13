@@ -45,7 +45,7 @@ public class State implements Comparable<State> {
         this.point = p;
     }
     
-    public State(String id, Point p, String duality) {
+    public State(String id, Point p, CellSpace duality) {
         this.id = id;
         this.point = p;
         this.duality = duality;
@@ -86,6 +86,14 @@ public class State implements Comparable<State> {
     
     public int compareTo(State o) {
         return id.compareTo(o.getId());
+    }
+
+    public CellSpace getDuality() {
+        return duality;
+    }
+
+    public void setDuality(CellSpace duality) {
+        this.duality = duality;
     }
 
     @Override

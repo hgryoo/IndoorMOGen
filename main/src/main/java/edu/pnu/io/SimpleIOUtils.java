@@ -36,4 +36,9 @@ public class SimpleIOUtils {
         return coord.x + " " + coord.y + " " + coord.z;
     }
     
+    public static String coordinateToStringFormat(Coordinate coord, int decimal) {
+        return String.format("%." + decimal + "f", coord.x) + " " +
+                String.format("%." + decimal + "f", coord.y) + " " +
+                String.format("%." + decimal + "f", coord.z);
+    }
 }

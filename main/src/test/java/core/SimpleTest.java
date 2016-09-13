@@ -92,7 +92,7 @@ public class SimpleTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws Exception {
         Generator gen = new Generator(layer);
         
         MovingObject m1 = new MovingObject(gen, ent1);

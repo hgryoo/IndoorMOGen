@@ -77,6 +77,10 @@ public class DijkstraPathFinder {
         this.prevNodes = new HashMap<Coordinate, Coordinate>();
         this.distances = new DistanceMap();
         
+        if(graph.hasCoordinate(node)) {
+            
+        }
+        
         // set distance to source 0 and initialize unvisited queue
         this.distances.put(node, 0);
         this.unvisited.add(node);
@@ -85,7 +89,13 @@ public class DijkstraPathFinder {
     public List<Coordinate> getShortestPath(Coordinate from, Coordinate to) {
         //TODO CoordinateGraph에 없는 경우 어떤 Transition 위에 있는지 판단하여 가까운 State에 해당하는 Coordinate를 매핑
         
-        Coordinate fromOn = graph.getNearestCoordinte(from);
+        State fromState = graph.getStateIndex(from);
+        Coordinate fromOn = null;
+        if(fromState == null) {
+            fromOn = graph.getNearestCoordinte(from);
+        } else {
+            fromOn = fromState.getPoint().getCoordinate();
+        }
         Coordinate toOn = graph.getNearestCoordinte(to);
         
         //LOGGER.debug(graph.getState(fromOn).getId() + "," + graph.getState(to).getId());

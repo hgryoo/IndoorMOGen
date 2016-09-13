@@ -35,9 +35,14 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.index.strtree.STRtree;
 
+import edu.pnu.model.CellSpace;
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.State;
 import edu.pnu.model.Transition;
@@ -58,6 +63,9 @@ public class CoordinateGraph {
     private Map<Coordinate, Transition> transitionList
         = new HashMap<Coordinate, Transition>();
     
+    private GeometryFactory fac = new GeometryFactory();
+    private STRtree index = new STRtree();
+    
     public CoordinateGraph(SpaceLayer layer) {
         List<Transition> ts = layer.getEdges();
         for(Transition t : ts) {
@@ -66,8 +74,48 @@ public class CoordinateGraph {
         
         List<State> ss = layer.getNodes();
         for(State s : ss) {
-            addCoordinatefromState(s);
+            CellSpace c = s.getDuality();
+            index.insert(c.getGeom().getEnvelopeInternal(), c);
+            //addCoordinatefromState(s);
         }
+    }
+    
+    public State getStateIndex(Coordinate c) {
+        Envelope queryEnv = new Envelope(c);
+        List<CellSpace> cList = index.query(queryEnv);
+        
+        Point qPoint = fac.createPoint(c);
+        
+        List<CellSpace> flatEqual = new ArrayList<CellSpace>();
+        for(CellSpace cell : cList) {
+            Polygon poly = cell.getGeom();
+            if(poly.contains(qPoint)) {
+                flatEqual.add(cell);
+            }
+        }
+        
+        State result = null;
+        double minZ = Double.MAX_VALUE;
+        for(CellSpace cell : flatEqual) {
+            State s = cell.getDuality();
+            Point p = s.getPoint();
+            if(p.getCoordinate().z == c.z) {
+                result = s;
+                break;
+            } else {
+                double dist = GeometryUtil.distance(p.getCoordinate(), c);
+                if(dist < minZ) {
+                    minZ = dist;
+                    result = s;
+                }
+           }
+        }
+        
+        return result;
+    }
+    
+    public boolean hasCoordinate(Coordinate c) {
+        return adjacencyList.containsKey(c);
     }
     
     public List<Coordinate> getCoordinates() {
@@ -94,6 +142,25 @@ public class CoordinateGraph {
     }
     
     private void registerCoordinate(Coordinate a, Coordinate b) {
+        Coordinate nearestA = getNearestCoordinte(a);
+        Coordinate nearestB = getNearestCoordinte(b);
+        
+        //new coordinate
+        /*if(nearestA == null || GeometryUtil.distance(nearestA, a) > 0.0001) {
+            List<Coordinate> neighbors = new ArrayList<Coordinate>();
+            adjacencyList.put(a, neighbors);
+            nearestA = a;
+        }
+        
+        if(nearestB == null || GeometryUtil.distance(nearestB, b) > 0.0001) {
+            List<Coordinate> neighbors = new ArrayList<Coordinate>();
+            adjacencyList.put(b, neighbors);
+            nearestB = b;
+        }*/
+        
+        //adjacencyList.get(nearestA).add(nearestB);
+        //adjacencyList.get(nearestB).add(nearestA);
+        
         if(!adjacencyList.containsKey(a)) {
             List<Coordinate> neighbors = new ArrayList<Coordinate>();
             adjacencyList.put(a, neighbors);
@@ -119,13 +186,23 @@ public class CoordinateGraph {
     public Coordinate getNearestCoordinte(Coordinate c) {
         Coordinate minKey = null;
         double min = Double.MAX_VALUE;
-        for(Coordinate k : adjacencyList.keySet()) {
+        Set<Coordinate> coords = adjacencyList.keySet();
+        List<Coordinate> array = new ArrayList<Coordinate>(coords);
+        for(int i = 0; i < array.size(); i++) {
+            Coordinate k = array.get(i);
             double dist = GeometryUtil.distance(k, c);
             if(dist < min) {
                 min = dist;
                 minKey = k;
             }
         }
+        /*for(Coordinate k : adjacencyList.keySet()) {
+            double dist = GeometryUtil.distance(k, c);
+            if(dist < min) {
+                min = dist;
+                minKey = k;
+            }
+        }*/
         return minKey;
     }
     

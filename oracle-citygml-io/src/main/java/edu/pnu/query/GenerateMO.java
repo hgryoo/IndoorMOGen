@@ -23,9 +23,9 @@ public class GenerateMO {
 	static HashMap<Coordinate, Double> minimumDistance = null;
 	private static void connectedDBMS(){
 		props.put("driver", "oracle.jdbc.driver.OracleDriver");
-		props.put("url", "jdbc:oracle:thin:@//localhost:1521/test");
+		props.put("url", "jdbc:oracle:thin:@//localhost:1521/orcl");
 		props.put("username", "system");
-		props.put("password", "STEM9987");
+		props.put("password", "stem9987");
 		
 		try {
 			session = manager.createSession(props);

@@ -49,9 +49,8 @@ public class FixedWayPoint extends AbstractWayPoint {
     private SpaceLayer layer;
     private CoordinateGraph graph;
     
-    public FixedWayPoint(SpaceLayer layer, Coordinate wayPoint) {
-        this.layer = layer;
-        this.graph = new CoordinateGraph(this.layer);
+    public FixedWayPoint(CoordinateGraph graph, Coordinate wayPoint) {
+        this.graph = graph;
         this.waypoint = wayPoint;
     }
     
@@ -59,11 +58,16 @@ public class FixedWayPoint extends AbstractWayPoint {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             //TODO START와 END는 State의 Coordinate이어야 한다.
-            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), waypoint);
+            Coordinate end = graph.getStateIndex(getWaypoint()).getPoint().getCoordinate();
+            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), end);
             if(pathCoords.isEmpty()) {
-                LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
-                mo.setMovement(new Stop());
-                return mo.getCurrentCoord();
+                pathCoords = mo.getPossibleEntrance(mo.getCurrentCoord());
+                
+                if(pathCoords.isEmpty()) {
+                    LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
+                    mo.setMovement(new Stop());
+                    return mo.getCurrentCoord();
+                }
             }
             Path path = new Path(pathCoords);
             setPath(path);
