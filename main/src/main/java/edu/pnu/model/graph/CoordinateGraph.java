@@ -75,8 +75,11 @@ public class CoordinateGraph {
         List<State> ss = layer.getNodes();
         for(State s : ss) {
             CellSpace c = s.getDuality();
-            index.insert(c.getGeom().getEnvelopeInternal(), c);
-            //addCoordinatefromState(s);
+            
+            if(c != null) {
+            	index.insert(c.getGeom().getEnvelopeInternal(), c);
+            	addCoordinatefromState(s);
+            }
         }
     }
     

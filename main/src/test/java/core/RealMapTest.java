@@ -13,8 +13,6 @@ import edu.pnu.io.SimpleCSVExporter;
 import edu.pnu.io.SimpleIndoorGMLImporter;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.graph.CoordinateGraph;
-import edu.pnu.query.GenerateMO;
 
 public class RealMapTest {
 

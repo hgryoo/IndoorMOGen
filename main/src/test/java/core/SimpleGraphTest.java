@@ -46,7 +46,7 @@ import edu.pnu.movement.FixedWayPoint;
  * @author hgryoo
  *
  */
-public class SimpleTest {
+public class SimpleGraphTest {
 
     private Coordinate ent1;
     private Coordinate ent2;
@@ -95,19 +95,20 @@ public class SimpleTest {
     public void test() throws Exception {
         Generator gen = new Generator(layer);
         
-        MovingObject m1 = new MovingObject(gen, ent1);
-        gen.addMovingObject(m1);
-        
-        MovingObject m2 = new MovingObject(gen, ent2);
-        gen.addMovingObject(m2);
-        
-        MovingObject m3 = new MovingObject(gen, ent1);
-        //m1.setMovement( new FixedWayPoint(layer, ent2));
-        gen.addMovingObject(m3);
-        
-        MovingObject m4 = new MovingObject(gen, ent2);
-        gen.addMovingObject(m4);
-        
+        for(int i = 0; i < 100; i++) {
+	        MovingObject m1 = new MovingObject(gen, ent1);
+	        gen.addMovingObject(m1);
+	        
+	        MovingObject m2 = new MovingObject(gen, ent2);
+	        gen.addMovingObject(m2);
+	        
+	        MovingObject m3 = new MovingObject(gen, ent1);
+	        //m1.setMovement( new FixedWayPoint(layer, ent2));
+	        gen.addMovingObject(m3);
+	        
+	        MovingObject m4 = new MovingObject(gen, ent2);
+	        gen.addMovingObject(m4);
+        }
         while(gen.advance());
         
         SimpleMovingFeaturesExporter exporter = new SimpleMovingFeaturesExporter("simpleMap");

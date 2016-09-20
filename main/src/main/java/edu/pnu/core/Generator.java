@@ -39,8 +39,6 @@ import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.graph.CoordinateGraph;
 import edu.pnu.movement.Stop;
-import edu.pnu.query.GenerateMO;
-import edu.pnu.util.DijkstraPathFinder;
 
 /**
  * @author hgryoo
@@ -66,7 +64,6 @@ public class Generator {
     public Generator(SpaceLayer layer) throws Exception {
         this.space = layer;
         this.graph = new CoordinateGraph(space);
-        GenerateMO.setMinErrorDistance(graph.getCoordinates());
         clock.reset();
     }
     

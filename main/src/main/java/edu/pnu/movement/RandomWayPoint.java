@@ -31,12 +31,9 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.core.Generator;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
 import edu.pnu.model.graph.CoordinateGraph;
-import edu.pnu.query.GenerateMO;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
