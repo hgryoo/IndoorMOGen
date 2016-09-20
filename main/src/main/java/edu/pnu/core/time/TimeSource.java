@@ -8,9 +8,10 @@ package edu.pnu.core.time;
  *
  */
 public interface TimeSource {
+	
 	int getHours();
 	int getMinutes();
 	int getSeconds();
+	long getTime();
 	
-	double getTime();
 }

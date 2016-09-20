@@ -8,7 +8,5 @@ package edu.pnu.core.time;
  *
  */
 public interface Observer {
-
 	void update();
-
 }

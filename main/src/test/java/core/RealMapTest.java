@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import edu.pnu.core.Generator;
-import edu.pnu.io.SimpleCSVExporter;
+import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
 import edu.pnu.io.SimpleIndoorGMLImporter;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
@@ -84,7 +84,7 @@ public class RealMapTest {
             idx++;
         }
         
-        SimpleCSVExporter csvExt = new SimpleCSVExporter("realTest");
+        SimpleMovingFeaturesCSVExporter csvExt = new SimpleMovingFeaturesCSVExporter("realTest");
         Iterator<MovingObject> it = gen.getMovingObjectIterator();
         while(it.hasNext()) {
             MovingObject mo = it.next();
