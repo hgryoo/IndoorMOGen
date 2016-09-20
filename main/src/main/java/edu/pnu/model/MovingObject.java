@@ -52,7 +52,7 @@ public class MovingObject implements MovementEventListener{
     private Coordinate coord;
     
     //TODO temporary assigned
-    private double life;
+    private long life;
     
     //TODO temporary assigned
     private double velocity;
@@ -63,7 +63,7 @@ public class MovingObject implements MovementEventListener{
     private Coordinate start;
     
     public MovingObject(Generator gen, Coordinate coord) {
-        this.life = new Random().nextInt(100) + 400.5;
+        this.life = new Random().nextInt(100) + 400;
         this.velocity = ((new Random().nextDouble() - 0.5) / 5) * 2 + 1.0;
         this.id = UUID.randomUUID().toString();
         this.coord = coord;
@@ -78,17 +78,17 @@ public class MovingObject implements MovementEventListener{
         this(gen, gen.getSpaceLayer().getState(startId).getPoint().getCoordinate());
     }
 
-    public void update(double sampling) {
+    public void update(long sampling) {
         Coordinate next = null;
         
-        double nextTime = sampling;
+        long nextTime = sampling;
         if(life != 0) {
             if((life - sampling) > 0) {
                 next = movement.getNext(this, nextTime);
                 life -= sampling;
             } else {
                 next = movement.getNext(this, life); // life done
-                double remain = sampling - life;
+                long remain = sampling - life;
                 
                 movement = new FixedWayPoint(gen.getGraph(), start);
                 if(remain > 0) {

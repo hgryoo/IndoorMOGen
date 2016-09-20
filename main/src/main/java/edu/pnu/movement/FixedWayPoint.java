@@ -54,7 +54,7 @@ public class FixedWayPoint extends AbstractWayPoint {
         this.waypoint = wayPoint;
     }
     
-    public Coordinate getNext(MovingObject mo, double time) {
+    public Coordinate getNext(MovingObject mo, long time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             //TODO START와 END는 State의 Coordinate이어야 한다.
