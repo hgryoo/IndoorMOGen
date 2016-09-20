@@ -39,7 +39,7 @@ import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.io.SimpleCSVExporter;
+import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
 import edu.pnu.io.SimpleMovingFeaturesExporter;
 import edu.pnu.model.History;
 
@@ -132,7 +132,7 @@ public class MovingFeaturesOutputTest {
         }
         exporter.bufferedExport("target/massive_object.gml");*/
         
-        SimpleCSVExporter csvExt = new SimpleCSVExporter("massiveTest");
+        SimpleMovingFeaturesCSVExporter csvExt = new SimpleMovingFeaturesCSVExporter("massiveTest");
         for(int i = 0; i < MOVING_NUM; i++) {
             csvExt.addHistory(UUID.randomUUID().toString(), trajectories.get(i));
         }

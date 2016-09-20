@@ -28,14 +28,10 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.model.History;
 
@@ -43,12 +39,12 @@ import edu.pnu.model.History;
  * @author hgryoo
  *
  */
-public class SimpleCSVExporter {
+public class SimpleMovingFeaturesCSVExporter {
     private String id; 
     private Map<String, List<History>> trajectory = new HashMap<String, List<History>> ();
     private List<CSVOutput> outputList = new LinkedList<CSVOutput>();
     
-    public SimpleCSVExporter(String id) {
+    public SimpleMovingFeaturesCSVExporter(String id) {
         this.id = id;
     }
     
