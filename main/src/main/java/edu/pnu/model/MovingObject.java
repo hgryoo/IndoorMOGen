@@ -37,6 +37,7 @@ import edu.pnu.core.Generator;
 import edu.pnu.movement.FixedWayPoint;
 import edu.pnu.movement.Movement;
 import edu.pnu.movement.MovementEventListener;
+import edu.pnu.movement.NoisedRandomWayPoint;
 import edu.pnu.movement.RandomWayPoint;
 import edu.pnu.movement.Stop;
 import edu.pnu.util.DijkstraPathFinder;
@@ -63,7 +64,7 @@ public class MovingObject implements MovementEventListener{
     private Coordinate start;
     
     public MovingObject(Generator gen, Coordinate coord) {
-        this.life = new Random().nextInt(100) + 400;
+        this.life = new Random().nextInt(100000) + 400000;
         this.velocity = ((new Random().nextDouble() - 0.5) / 5) * 2 + 1.0;
         this.id = UUID.randomUUID().toString();
         this.coord = coord;
@@ -71,7 +72,7 @@ public class MovingObject implements MovementEventListener{
         this.gen = gen;
         this.history = new LinkedList<History>();
         this.history.add(new History(gen.getClock().getTime(), this.coord));
-        this.movement = new RandomWayPoint(gen.getGraph());
+        this.movement = new NoisedRandomWayPoint(gen.getGraph());
     }
     
     public MovingObject(Generator gen, String startId) {
@@ -120,7 +121,7 @@ public class MovingObject implements MovementEventListener{
     }
     
     public Movement getNextMovement() {
-        return new RandomWayPoint(gen.getGraph());
+        return new NoisedRandomWayPoint(gen.getGraph());
     }
     
     public Coordinate getCurrentCoord() {

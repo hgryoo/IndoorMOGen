@@ -57,9 +57,9 @@ public class Generator {
     
     private Clock clock = Clock.getInstance();
     
-    public static final double SAMPLING = 1.0;
-    private final double START = 0.0;
-    private final double END = 1000.0;
+    public static final long SAMPLING = 1000;
+    private final long START = 0;
+    private final long END = 1000000;
     
     public Generator(SpaceLayer layer) throws Exception {
         this.space = layer;
@@ -95,7 +95,7 @@ public class Generator {
             
             for(MovingObject m : moList) {
                 if(!dead.contains(m)) {
-                    m.update(1);
+                    m.update(SAMPLING);
                 }
                 if(m.getMovement() instanceof Stop) {
                     dead.add(m);

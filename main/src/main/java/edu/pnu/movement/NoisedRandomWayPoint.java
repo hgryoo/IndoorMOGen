@@ -24,6 +24,7 @@
  */
 package edu.pnu.movement;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -32,8 +33,10 @@ import org.apache.log4j.Logger;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.math.Vector3D;
 
+import edu.pnu.model.CellSpace;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.State;
 import edu.pnu.model.graph.CoordinateGraph;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
@@ -70,18 +73,33 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             setWaypoint(randomDest);
             
             //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
-            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), getWaypoint());
+            
+            CellSpace containedCell = graph.queryCell(mo.getCurrentCoord());
+            State duality = containedCell.getDuality();	
+            Coordinate statePoint = duality.getPoint().getCoordinate();
+            
+            List<Coordinate> pathCoords = finder.getShortestPath(statePoint, getWaypoint());
             if(pathCoords.isEmpty()) {
                 LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
-                pathCoords.add(mo.getCurrentCoord());
-                pathCoords.add(graph.getNeighbors(mo.getCurrentCoord()).get(0));
+                pathCoords.add(statePoint);
+                pathCoords.add(graph.getNeighbors(statePoint).get(0));
             }
             
-            Path path = new Path(pathCoords);
+            List<Coordinate> noisedPath = new ArrayList<Coordinate>();
+            for(Coordinate origin : pathCoords) {
+            	Coordinate noised = getNoisedCoordinate(origin, 2, 5);
+            	noisedPath.add(noised);
+            }
+            
+            if(!mo.getCurrentCoord().equals3D(noisedPath.get(0))) {
+            	noisedPath.add(0, mo.getCurrentCoord());
+            }
+            
+            Path path = new Path(noisedPath);
             setPath(path);
         }
         
-        double totalDist = mo.getVelocity() * time;
+        double totalDist = mo.getVelocity() * (time/1000.0);
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
@@ -93,9 +111,14 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
                 newCoord = nextCoord;
                 totalDist -= nextDist;
                 getPath().advance();
-                if(getPath().hasNext() == false) {
-                    break;
+                
+                if(getPath().hasNext()) {
+                	//다음 셀에 대한 속도모델을 적용
+                	
+                } else {
+                	break;
                 }
+                
             }
         }
         
@@ -111,7 +134,28 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
         return newCoord;
     }
     
-    protected Vector3D getNoise(Coordinate origin, final double sigma, final int count) {
+    protected Coordinate getNoisedCoordinate(Coordinate origin, final double sigma, final int count) {
+    	CellSpace originCell = graph.queryCell(origin);
+    	
+    	if(originCell == null) {
+    		LOGGER.error("origin coordinate is not in any CellSpace");
+    		return origin;
+    	}
+    	
+    	Vector3D noised = getNoise(sigma, count);
+    	Coordinate noisedCoordinate = null;
+    	CellSpace queryCell = null;
+    	do {
+    		noisedCoordinate = new Coordinate
+    				(origin.x + noised.getX(), origin.y + noised.getY() , origin.z + noised.getZ());
+    		queryCell = graph.queryCell(noisedCoordinate);
+    		noised = new Vector3D(noised.getX() / 2, noised.getY() / 2, noised.getZ() / 2);
+    	} while (!originCell.equals(queryCell));
+    	
+    	return noisedCoordinate;
+    }
+    
+    protected Vector3D getNoise(final double sigma, final int count) {
     	Random rand = new Random();
     	
     	double offsetX = 0;
@@ -119,7 +163,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
     	
     	for(int i = 0; i < count; i++) {
     		offsetX += Math.cos(Math.toRadians(rand.nextInt(360))) * rand.nextGaussian() * sigma;
-    		offsetY += Math.cos(Math.toRadians(rand.nextInt(360))) * rand.nextGaussian() * sigma;
+    		offsetY += Math.sin(Math.toRadians(rand.nextInt(360))) * rand.nextGaussian() * sigma;
     	}
     	
     	offsetX /= count;
@@ -127,4 +171,5 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
     	
     	return new Vector3D(offsetX, offsetY, 0);
     }
+    
 }

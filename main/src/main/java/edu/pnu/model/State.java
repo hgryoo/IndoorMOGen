@@ -33,8 +33,7 @@ import com.vividsolutions.jts.geom.Point;
  * @author hgryoo
  *
  */
-public class State implements Comparable<State> {
-    
+public class State {
     private String id;
     private Point point;
     private List<Transition> connects = new ArrayList<Transition>();
@@ -84,10 +83,6 @@ public class State implements Comparable<State> {
         return null;
     }
     
-    public int compareTo(State o) {
-        return id.compareTo(o.getId());
-    }
-
     public CellSpace getDuality() {
         return duality;
     }

@@ -34,6 +34,7 @@ import java.util.Map;
  *
  */
 public class SpaceLayer {
+	
     protected List<State> nodes;
     protected List<Transition> edges;
 
@@ -74,9 +75,19 @@ public class SpaceLayer {
         }
         return null;
     }
+    
+    public Transition getTransition(String id) {
+        if(edgesMap.containsKey(id)) {
+            return edges.get(edgesMap.get(id));
+        }
+        return null;
+    }
 
     @Override
     public String toString() {
-        return "SpaceLayer [nodes=" + nodes + ", edges=" + edges + "]";
+        return "SpaceLayer ["
+        		+ "\n nodes=" + nodes 
+        		+ "\n edges=" + edges 
+        		+ "]";
     }
 }

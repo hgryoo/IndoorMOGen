@@ -39,24 +39,29 @@ public class CellSpace {
         this.id = id;
         this.geom = poly;
     }
+    
     public String getId() {
         return id;
     }
+    
     public void setId(String id) {
         this.id = id;
     }
+    
     public State getDuality() {
         return duality;
     }
+    
     public void setDuality(State duality) {
         this.duality = duality;
     }
+    
     public Polygon getGeom() {
         return geom;
     }
+    
     public void setGeom(Polygon geom) {
         this.geom = geom;
     }
-    
     
 }

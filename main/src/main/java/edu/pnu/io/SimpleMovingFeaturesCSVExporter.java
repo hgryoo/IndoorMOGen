@@ -104,16 +104,23 @@ public class SimpleMovingFeaturesCSVExporter {
         try {
             writer = new BufferedWriter(new FileWriter(new File(path.toString())));
             
+            writer.write("@stboundedby,urn:x-ogc:def:crs:EPSG:6.6:4326,3D,50.23 9.23 0,50.31 9.27 0,2012-01-17T12:33:00Z,2012-01-17T12:49:40Z,sec");
+            writer.newLine();
+            writer.write("@columns,mfidref,trajectory,\"typecode\",xsd:integer");
+            writer.newLine();
+            
             for(CSVOutput output : outputList) {
                 writer.write(output.id);
                 writer.write(",");
-                writer.write(String.valueOf(output.start));
+                writer.write(String.valueOf(output.start/1000));
                 writer.write(",");
-                writer.write(String.valueOf(output.end));
+                writer.write(String.valueOf(output.end/1000));
                 writer.write(",");
                 writer.write(output.sCoord);
-                writer.write(",");
+                writer.write(" ");
                 writer.write(output.eCoord);
+                writer.write(",");
+                writer.write(String.valueOf(1));
                 writer.newLine();
             }
         } catch (IOException e) {

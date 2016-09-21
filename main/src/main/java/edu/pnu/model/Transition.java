@@ -34,7 +34,6 @@ import com.vividsolutions.jts.geom.LineString;
  *
  */
 public class Transition {
-    
     private String id;
     private LineString line;
     private List<State> connects = new Vector<State>(2);
@@ -44,12 +43,12 @@ public class Transition {
         this.line = line;
     }
     
-    public LineString getLine() {
-        return line;
-    }
-    
     public String getId() {
         return id;
+    }
+
+    public LineString getLine() {
+        return line;
     }
     
     public void setState(State a, State b) {
@@ -58,7 +57,13 @@ public class Transition {
     }
     
     public State getOtherState(State s) {
-        return (s == connects.get(0)) ? connects.get(1) : connects.get(0);
+    	if(s.equals(connects.get(0))) {
+    		return connects.get(1);
+    	} else if(s.equals(connects.get(1))) {
+    		return connects.get(0);
+    	} else {
+    		return null;
+    	}
     }
 
     @Override

@@ -63,10 +63,13 @@ public class CoordinateGraph {
     private Map<Coordinate, Transition> transitionList
         = new HashMap<Coordinate, Transition>();
     
+    private SpaceLayer layer;
+    
     private GeometryFactory fac = new GeometryFactory();
     private STRtree index = new STRtree();
     
     public CoordinateGraph(SpaceLayer layer) {
+    	this.layer = layer;
         List<Transition> ts = layer.getEdges();
         for(Transition t : ts) {
             addCoordinatefromTransition(t);
@@ -116,6 +119,13 @@ public class CoordinateGraph {
         }
         
         return result;
+    }
+    
+    public CellSpace queryCell(Coordinate c) {
+    	Envelope queryEnv = new Envelope(c);
+    	List<CellSpace> cList = index.query(queryEnv);
+    	
+    	return cList.get(0);
     }
     
     public boolean hasCoordinate(Coordinate c) {

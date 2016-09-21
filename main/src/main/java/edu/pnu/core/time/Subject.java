@@ -25,5 +25,4 @@ public abstract class Subject {
 			observers.add(o);
 		}
 	}
-	
 }

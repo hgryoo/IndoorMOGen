@@ -27,14 +27,10 @@ package edu.pnu.io;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.xpath.XPathExpressionException;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 import edu.pnu.model.SpaceBuilder;

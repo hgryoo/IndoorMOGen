@@ -86,7 +86,7 @@ public class StateDijkstraPathFinder {
     private List<State> getShortestPathInteranl(State from, State to) {
         List<State> coords = new LinkedList<State>();
         
-        if (from.compareTo(to) == 0) { // source and destination are the same
+        if (from.equals(to)) { // source and destination are the same
             coords.add(from); // return a list containing only source node
         } else {
             init(from);
