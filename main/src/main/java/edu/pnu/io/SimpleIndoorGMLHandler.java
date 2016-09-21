@@ -52,17 +52,7 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
     private static final String XLINK_NS = "http://www.w3.org/1999/xlink";
     private static final String GML_NS = "http://www.opengis.net/gml/3.2";
     private static final String INDOOR_CORE_NS = "http://www.opengis.net/indoorgml/1.0/core"; 
-    
-    private String xlinkAbbr = "xlink";
-    private String gmlAbbr = "gml";
-    private String indoorCoreAbbr = "core";
-    
-    private boolean state;
-    private boolean transition;
-    
-    private boolean point;
-    private boolean linestring;
-    private boolean connects;
+
     private boolean pos;
     
     private String id;
@@ -82,19 +72,12 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             throws SAXException {
         if(qName.contains("State")) {
             id = attributes.getValue("gml:id");
-            state = true;
         } else if(qName.contains("Transition")) {
             id = attributes.getValue("gml:id");
-            transition = true;
         } else if(qName.contains("CellSpace")) {
             id = attributes.getValue("gml:id");
-        } else if(qName.contains("Point")) {
-            point = true;
-        } else if(qName.contains("LineString")) {
-            linestring = true;
         } else if(qName.contains("connects")) {
             neighbors.add(attributes.getValue("xlink:href").replaceAll("#", ""));
-            connects = true;
         } else if(qName.contains("duality")) {
             duality = attributes.getValue("xlink:href").replaceAll("#", "");
         } else if(qName.contains("pos")) {
@@ -115,7 +98,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             s.setDuality(cell);
             
             builder.addState(s);
-            state = false;
             neighbors.clear();
             
         } else if(qName.contains("Transition")) {
@@ -141,7 +123,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             */
             
             builder.createTransition(id, first, second, l);
-            transition = false;
             neighbors.clear();
             
         } else if(qName.contains("CellSpace")) {
@@ -151,7 +132,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
         } else if(qName.contains("Point")) {
             p = geomFac.createPoint(coords.get(0));
             coords.clear();
-            point = false;
             
         } else if(qName.contains("LineString")) {
             Coordinate[] cs = new Coordinate[coords.size()];
@@ -160,7 +140,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             }
             l = geomFac.createLineString(cs);
             coords.clear();
-            linestring = false;
             
         } else if(qName.contains("Polygon")) {
             Coordinate[] cs = new Coordinate[coords.size()];
@@ -170,8 +149,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             poly = geomFac.createPolygon(cs);
             coords.clear();  
             
-        } else if(qName.contains("connects")) {
-            connects = false;
         }
     }
 
@@ -187,6 +164,10 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             coords.add(coord);
             pos = false;
         }
+    }
+    
+    public void disposeIndex() {
+    	
     }
     
     public SpaceBuilder getSpaceBuilder() {

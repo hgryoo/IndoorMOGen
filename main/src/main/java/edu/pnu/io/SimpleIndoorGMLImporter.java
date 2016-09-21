@@ -64,7 +64,7 @@ public class SimpleIndoorGMLImporter {
     
     public static void main(String[] args) {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("target/LWM_IGML.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/LWM_IGML.gml");
             
             SpaceLayer l = importer.getSpaceLayer();
             
