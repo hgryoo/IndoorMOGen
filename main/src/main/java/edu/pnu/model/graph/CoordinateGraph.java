@@ -81,6 +81,7 @@ public class CoordinateGraph {
             	addCoordinatefromState(s);
             }
         }
+        index.build();
     }
     
     public State getStateIndex(Coordinate c) {
