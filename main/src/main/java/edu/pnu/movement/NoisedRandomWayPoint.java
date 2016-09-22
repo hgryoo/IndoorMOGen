@@ -73,7 +73,6 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             setWaypoint(randomDest);
             
             //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
-            
             CellSpace containedCell = graph.queryCell(mo.getCurrentCoord());
             State duality = containedCell.getDuality();	
             Coordinate statePoint = duality.getPoint().getCoordinate();

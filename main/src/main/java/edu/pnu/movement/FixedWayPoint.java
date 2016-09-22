@@ -73,7 +73,7 @@ public class FixedWayPoint extends AbstractWayPoint {
             setPath(path);
         }
         
-        double totalDist = mo.getVelocity() * time;
+        double totalDist = mo.getVelocity() * (time/1000.0);
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());

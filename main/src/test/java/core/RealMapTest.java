@@ -3,14 +3,15 @@ package core;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import edu.pnu.core.Generator;
-import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
 import edu.pnu.io.SimpleIndoorGMLImporter;
+import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
 import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 
@@ -38,9 +39,9 @@ public class RealMapTest {
         Generator gen = new Generator(layer);
         
         boolean connected = gen.getGraph().isConnectedComponents();
-        if(!connected){
+        /*if(!connected){
             throw new IllegalArgumentException();
-        }
+        }*/
         
         /*for(int i = 0; i < 50; i++) {
             MovingObject m1 = new MovingObject(gen, "R11437");
@@ -56,11 +57,11 @@ public class RealMapTest {
         entrances.add("R11440");
         entrances.add("R11441");
         
-        /*entrances.add("R11442");
-        entrances.add("R11443");
-        entrances.add("R11444");
-        entrances.add("R11445");
-        entrances.add("R11448");*/
+        entrances.add("R11504");
+        entrances.add("R11505");
+        entrances.add("R11506");
+        entrances.add("R11507");
+        entrances.add("R11508");
         gen.setEntrance(entrances);
         
         int idx = 0;
@@ -75,7 +76,7 @@ public class RealMapTest {
         */
         int entSize = entrances.size();
         while(gen.advance()) {
-            if(idx % 3 == 0 && idx < 100) {
+            if(new Random().nextInt(10) < 4 && idx < 100) {
                 for(int i = 0; i < entSize; i++) {
                     MovingObject m1 = new MovingObject(gen, entrances.get(i));
                     gen.addMovingObject(m1);
@@ -90,7 +91,7 @@ public class RealMapTest {
             MovingObject mo = it.next();
             csvExt.addHistory(mo.getId(), mo.getHistory());
         }
-        csvExt.bufferedExport("target/real_test.csv");
+        csvExt.bufferedExport("target/real_test_2.csv");
     }
 
 }
