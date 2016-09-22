@@ -125,7 +125,25 @@ public class CoordinateGraph {
     	Envelope queryEnv = new Envelope(c);
     	List<CellSpace> cList = index.query(queryEnv);
     	
-    	return cList.get(0);
+    	CellSpace result = null;
+    	if(!cList.isEmpty()) {
+    		if(cList.size() > 1) {
+        		for(int i = 0; i < cList.size(); i++) {
+        			if(cList.get(i).getDuality().getPoint().getCoordinate().z - c.z < 0.1) {
+        				result = cList.get(i);
+        				break;
+        			}
+        		}
+        	} else {
+        		result = cList.get(0);
+        	}
+    	}
+    	
+    	return result;
+    }
+    
+    public boolean isContained(Coordinate start, Coordinate end) {
+    	return true;
     }
     
     public boolean hasCoordinate(Coordinate c) {

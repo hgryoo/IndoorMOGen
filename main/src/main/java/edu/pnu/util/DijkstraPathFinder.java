@@ -83,26 +83,14 @@ public class DijkstraPathFinder {
     
     public List<Coordinate> getShortestPath(Coordinate from, Coordinate to) {
         //TODO CoordinateGraph에 없는 경우 어떤 Transition 위에 있는지 판단하여 가까운 State에 해당하는 Coordinate를 매핑
-        
-        //State fromState = graph.getStateIndex(from);
-        Coordinate fromOn = null;
-        //if(fromState == null) {
-            fromOn = graph.getNearestCoordinte(from);
-        //} else {
-        //   fromOn = fromState.getPoint().getCoordinate();
-        //}
-        Coordinate toOn = graph.getNearestCoordinte(to);
-        
-        //LOGGER.debug(graph.getState(fromOn).getId() + "," + graph.getState(to).getId());
-        
-        List<Coordinate> result = getShortestPathInteranl(fromOn, toOn);
+        List<Coordinate> result = getShortestPathInteranl(from, to);
         return result;
     }
     
     private List<Coordinate> getShortestPathInteranl(Coordinate from, Coordinate to) {
         List<Coordinate> coords = new LinkedList<Coordinate>();
         
-        if (from.compareTo(to) == 0) { // source and destination are the same
+        if (from.equals3D(to)) { // source and destination are the same
             coords.add(from); // return a list containing only source node
         } else {
             init(from);
@@ -125,7 +113,6 @@ public class DijkstraPathFinder {
                     }       
                     coords.add(0, from); // finally put the source node to first node
             }
-            
         }
         return coords;
     }

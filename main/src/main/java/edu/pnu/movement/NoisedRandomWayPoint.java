@@ -86,7 +86,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             
             List<Coordinate> noisedPath = new ArrayList<Coordinate>();
             for(Coordinate origin : pathCoords) {
-            	Coordinate noised = getNoisedCoordinate(origin, 2, 5);
+            	Coordinate noised = getNoisedCoordinate(origin, 3, 5);
             	noisedPath.add(noised);
             }
             

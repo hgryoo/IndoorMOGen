@@ -22,7 +22,7 @@ public class RealMapTest {
     @Before
     public void setUp() throws Exception {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_LWM_2D.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_AVENUEL1F2F_2D.gml");
             layer = importer.getSpaceLayer();
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -57,11 +57,11 @@ public class RealMapTest {
         entrances.add("R11440");
         entrances.add("R11441");
         
-        entrances.add("R11504");
+        /*entrances.add("R11504");
         entrances.add("R11505");
         entrances.add("R11506");
         entrances.add("R11507");
-        entrances.add("R11508");
+        entrances.add("R11508");*/
         gen.setEntrance(entrances);
         
         int idx = 0;

@@ -120,7 +120,7 @@ public class SimpleMovingFeaturesCSVExporter {
                 writer.write(" ");
                 writer.write(output.eCoord);
                 writer.write(",");
-                writer.write(String.valueOf(1));
+                writer.write(String.valueOf(2));
                 writer.newLine();
             }
         } catch (IOException e) {

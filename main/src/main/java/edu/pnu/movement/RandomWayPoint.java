@@ -68,8 +68,11 @@ public class RandomWayPoint extends AbstractWayPoint {
             Coordinate randomDest = getRandomCoordinate();
             setWaypoint(randomDest);
             
+            Coordinate fromOn = graph.getNearestCoordinte(mo.getCurrentCoord());
+            Coordinate toOn = graph.getNearestCoordinte(getWaypoint());
+            
             //TODO 현재는 START와 END는 State의 Coordinate이어야 한다.
-            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), getWaypoint());
+            List<Coordinate> pathCoords = finder.getShortestPath(fromOn, toOn);
             if(pathCoords.isEmpty()) {
                 LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
                 pathCoords.add(mo.getCurrentCoord());
