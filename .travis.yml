@@ -1,6 +1,8 @@
 language: java
 script:
   - mvn clean install
+  - jdk_switcher use openjdk8
+  - jdk_switcher use oraclejdk7
 jdk: 
   - openjdk8
   - oraclejdk8
