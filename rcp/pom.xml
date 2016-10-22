@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>edu.pnu.stemlab</groupId>
+    <artifactId>indoormogen</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>  
+  <artifactId>rcp</artifactId>
+  <!-- eclipse-application is deprecated. See http://wiki.eclipse.org/Tycho/Packaging_Types#eclipse-application -->
+  <packaging>eclipse-application</packaging>
+</project>
