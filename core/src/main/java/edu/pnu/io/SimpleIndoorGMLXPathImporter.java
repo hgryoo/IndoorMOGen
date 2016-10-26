@@ -50,8 +50,8 @@ import com.vividsolutions.jts.geom.Point;
 
 import edu.pnu.model.SpaceBuilder;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
-import edu.pnu.model.Transition;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.dual.Transition;
 
 /**
  * @author hgryoo

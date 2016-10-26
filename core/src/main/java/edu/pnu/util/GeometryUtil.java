@@ -26,6 +26,7 @@ package edu.pnu.util;
 
 import com.vividsolutions.jts.algorithm.CGAlgorithms3D;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.math.Vector3D;
 
 /**
@@ -52,5 +53,9 @@ public class GeometryUtil {
                 (dist * toVec.getZ() + n * fromVec.getZ()) / mn);
         
         return new Coordinate(result.getX(), result.getY(), result.getZ());
+    }
+    
+    public boolean PointInPolygon3D(Coordinate c, Polygon p) {
+        return false;
     }
 }

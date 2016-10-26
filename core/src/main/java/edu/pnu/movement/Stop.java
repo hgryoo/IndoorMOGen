@@ -26,7 +26,7 @@ package edu.pnu.movement;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.MovingObject;
+import edu.pnu.model.movingobject.MovingObject;
 
 /**
  * @author hgryoo
@@ -34,6 +34,6 @@ import edu.pnu.model.MovingObject;
  */
 public class Stop implements Movement {
     public Coordinate getNext(MovingObject mo, long time) {
-        return mo.getCurrentCoord();
+        return mo.getCurrentPosition();
     }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import org.junit.After;
 import org.junit.Before;
@@ -12,8 +13,9 @@ import org.junit.Test;
 import edu.pnu.core.Generator;
 import edu.pnu.io.SimpleIndoorGMLImporter;
 import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.movingobject.MovingObject;
 
 public class RealMapTest {
 
@@ -22,7 +24,7 @@ public class RealMapTest {
     @Before
     public void setUp() throws Exception {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_AVENUEL1F2F_2D.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_LWM_2D.gml");
             layer = importer.getSpaceLayer();
         } catch (Exception e) {
             // TODO Auto-generated catch block
@@ -43,46 +45,20 @@ public class RealMapTest {
             throw new IllegalArgumentException();
         }*/
         
-        /*for(int i = 0; i < 50; i++) {
-            MovingObject m1 = new MovingObject(gen, "R11437");
-            gen.addMovingObject(m1);
-        }*/
+        Set<State> ents = layer.getEntrances();
         
-        List<String> entrances = new ArrayList<String>();
-        
-        entrances.add("R11436");
-        entrances.add("R11437");
-        entrances.add("R11438");
-        entrances.add("R11439");
-        entrances.add("R11440");
-        entrances.add("R11441");
-        
-        /*entrances.add("R11504");
-        entrances.add("R11505");
-        entrances.add("R11506");
-        entrances.add("R11507");
-        entrances.add("R11508");*/
-        gen.setEntrance(entrances);
-        
-        int idx = 0;
-        
-        for(int i = 0; i < entrances.size(); i++) {
-            MovingObject m1 = new MovingObject(gen, entrances.get(i));
+        for(State s : ents) {
+            MovingObject m1 = new MovingObject(gen, s);
             gen.addMovingObject(m1);
         }
         
-/*        MovingObject m1 = new MovingObject(gen, entrances.get(0));
-        gen.addMovingObject(m1);
-        */
-        int entSize = entrances.size();
         while(gen.advance()) {
-            if(new Random().nextInt(10) < 4 && idx < 100) {
-                for(int i = 0; i < entSize; i++) {
-                    MovingObject m1 = new MovingObject(gen, entrances.get(i));
+            /*if(new Random().nextInt(10) < 4 && idx < 100) {
+                for(State s : ents) {
+                    MovingObject m1 = new MovingObject(gen, s);
                     gen.addMovingObject(m1);
                 }
-            }
-            idx++;
+            }*/
         }
         
         SimpleMovingFeaturesCSVExporter csvExt = new SimpleMovingFeaturesCSVExporter("realTest");

@@ -36,10 +36,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import edu.pnu.core.Generator;
 import edu.pnu.io.SimpleMovingFeaturesExporter;
 import edu.pnu.model.History;
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceBuilder;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.movingobject.MovingObject;
 import edu.pnu.movement.FixedWayPoint;
 
 /**

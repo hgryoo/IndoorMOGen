@@ -26,7 +26,7 @@ package edu.pnu.movement;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.MovingObject;
+import edu.pnu.model.movingobject.MovingObject;
 
 /**
  * @author hgryoo

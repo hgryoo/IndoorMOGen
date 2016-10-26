@@ -37,7 +37,7 @@ import java.util.Set;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
 
 /**
  * @author hgryoo
@@ -79,7 +79,6 @@ public class StateDijkstraPathFinder {
     }
     
     public List<State> getShortestPath(State from, State to) {
-        //TODO CoordinateGraph에 없는 경우 어떤 Transition 위에 있는지 판단하여 가까운 State에 해당하는 Coordinate를 매핑
         return getShortestPathInteranl(from, to);
     }
     

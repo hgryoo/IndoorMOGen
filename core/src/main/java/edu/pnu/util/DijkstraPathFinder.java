@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
 import edu.pnu.model.graph.CoordinateGraph;
 
 /**
@@ -82,7 +82,7 @@ public class DijkstraPathFinder {
     }
     
     public List<Coordinate> getShortestPath(Coordinate from, Coordinate to) {
-        //TODO CoordinateGraph¿¡ ¾ø´Â °æ¿ì ¾î¶² Transition À§¿¡ ÀÖ´ÂÁö ÆÇ´ÜÇÏ¿© °¡±î¿î State¿¡ ÇØ´çÇÏ´Â Coordinate¸¦ ¸ÅÇÎ
+        //TODO CoordinateGraphï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½î¶² Transition ï¿½ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½ ï¿½Ç´ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ Stateï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ Coordinateï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         List<Coordinate> result = getShortestPathInteranl(from, to);
         return result;
     }

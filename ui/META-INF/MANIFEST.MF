@@ -1,11 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bundle
-Bundle-SymbolicName: ui;singleton:=true
+Bundle-Name: Ui
+Bundle-SymbolicName: ui
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
-Require-Bundle: org.eclipse.equinox.app;bundle-version="1.2.1",
- org.eclipse.swt;bundle-version="3.5.0",
- system.bundle
-Bundle-Activator: edu.pnu.stemlab.indoormogen.Activator
-Bundle-ActivationPolicy: lazy
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Require-Bundle: org.eclipse.swt;bundle-version="3.105.1"

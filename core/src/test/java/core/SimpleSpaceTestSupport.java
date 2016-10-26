@@ -12,10 +12,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
-import edu.pnu.model.CellSpace;
 import edu.pnu.model.SpaceBuilder;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.primal.CellSpace;
 
 /**
  * @author hgryoo

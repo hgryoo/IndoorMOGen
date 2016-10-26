@@ -24,7 +24,7 @@
  */
 package core;
 
-import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,13 +33,10 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 
-import edu.pnu.core.Generator;
-import edu.pnu.io.SimpleMovingFeaturesCSVExporter;
-import edu.pnu.model.CellSpace;
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceBuilder;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.primal.CellSpace;
 
 /**
  * @author hgryoo
@@ -99,6 +96,15 @@ public class SimpleSpaceTest extends SimpleSpaceTestSupport {
     }
 
     @Test
+    public void randomWalkTest() throws Exception {
+        
+        List<CellSpace> c = layer.getCells();
+        
+        
+        
+    }
+    
+    /*@Test
     public void test() throws Exception {
         Generator gen = new Generator(layer);
         
@@ -116,6 +122,6 @@ public class SimpleSpaceTest extends SimpleSpaceTestSupport {
             exporter.addHistory(mo.getId(), mo.getHistory());
         }
         exporter.bufferedExport("target/simpleMap.csv");
-    }
+    }*/
     
 }

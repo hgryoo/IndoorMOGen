@@ -25,6 +25,7 @@
 package edu.pnu.core;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -35,9 +36,10 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.dual.State;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.model.movingobject.MovingObject;
 import edu.pnu.movement.Stop;
 
 /**
@@ -47,7 +49,11 @@ import edu.pnu.movement.Stop;
 public class Generator {
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
     
-    private List<String> entrances = new ArrayList<String>();
+    public static final long SAMPLING = 1;
+    public static final long END = 10000;
+    
+    private Date startTime;
+    private List<State> entrances = new ArrayList<State>();
     
     private List<MovingObject> moList = new LinkedList<MovingObject>();
     private Set<MovingObject> dead = new HashSet<MovingObject>();
@@ -56,10 +62,11 @@ public class Generator {
     private CoordinateGraph graph;
     
     private Clock clock = Clock.getInstance();
-    
-    public static final long SAMPLING = 1000;
-    private final long START = 0;
-    private final long END = 1000000;
+
+    public Generator(Date startTime, SpaceLayer space) {
+        this.startTime = startTime;
+        this.space = space;
+    }
     
     public Generator(SpaceLayer layer) throws Exception {
         this.space = layer;
@@ -83,14 +90,10 @@ public class Generator {
         return clock;
     }
 
-    public boolean advance() {    
-        double remaining = END - clock.getTime();
+    public boolean advance() {
+        long remaining = END - clock.getTime();
         if(remaining > 0) {
-            if(remaining > SAMPLING) {
-                clock.advance(SAMPLING);
-            } else {
-                clock.advance(remaining);
-            }
+            clock.advance(SAMPLING);
             LOGGER.info("Advanced Clock : " + clock.getTime());
             
             for(MovingObject m : moList) {
@@ -120,11 +123,11 @@ public class Generator {
         return null;
     }
 
-    public void setEntrance(List<String> entrances) {
+    public void setEntrance(List<State> entrances) {
         this.entrances = entrances;
     }
     
-    public List<String> getEntrance() {
+    public List<State> getEntrance() {
         return entrances;
     }
 }

@@ -33,11 +33,11 @@ import org.apache.log4j.Logger;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.math.Vector3D;
 
-import edu.pnu.model.CellSpace;
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.model.movingobject.MovingObject;
+import edu.pnu.model.primal.CellSpace;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
@@ -72,8 +72,8 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             Coordinate randomDest = getRandomCoordinate();
             setWaypoint(randomDest);
             
-            //TODO ÇöÀç´Â START¿Í END´Â StateÀÇ CoordinateÀÌ¾î¾ß ÇÑ´Ù.
-            CellSpace containedCell = graph.queryCell(mo.getCurrentCoord());
+            //TODO ï¿½ï¿½ï¿½ï¿½ï¿½ STARTï¿½ï¿½ ENDï¿½ï¿½ Stateï¿½ï¿½ Coordinateï¿½Ì¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
+            CellSpace containedCell = graph.queryCell(mo.getCurrentPosition());
             State duality = containedCell.getDuality();	
             Coordinate statePoint = duality.getPoint().getCoordinate();
             
@@ -90,8 +90,8 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
             	noisedPath.add(noised);
             }
             
-            if(!mo.getCurrentCoord().equals3D(noisedPath.get(0))) {
-            	noisedPath.add(0, mo.getCurrentCoord());
+            if(!mo.getCurrentPosition().equals3D(noisedPath.get(0))) {
+            	noisedPath.add(0, mo.getCurrentPosition());
             }
             
             Path path = new Path(noisedPath);
@@ -102,9 +102,9 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
-            double nextDist = GeometryUtil.distance(mo.getCurrentCoord(), nextCoord);
+            double nextDist = GeometryUtil.distance(mo.getCurrentPosition(), nextCoord);
             if(totalDist < nextDist) {
-                newCoord = GeometryUtil.fromTo(mo.getCurrentCoord(), nextCoord, totalDist);
+                newCoord = GeometryUtil.fromTo(mo.getCurrentPosition(), nextCoord, totalDist);
                 totalDist = 0;
             } else {
                 newCoord = nextCoord;
@@ -112,7 +112,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
                 getPath().advance();
                 
                 if(getPath().hasNext()) {
-                	//´ÙÀ½ ¼¿¿¡ ´ëÇÑ ¼Óµµ¸ðµ¨À» Àû¿ë
+                	//ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
                 	
                 } else {
                 	break;
@@ -125,7 +125,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
         if(reaminTime > 0) {
             mo.addHistory(reaminTime, newCoord);
             mo.setMovement(mo.getNextMovement());
-            //MovingObject¿¡ ½Ã°£ Áß¿¡ ³¡³µ´Ù°í ½ÅÈ£¸¦ Áà¾ßÇÔ
+            //MovingObjectï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ù°ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
             
             //newCoord = getNext(mo, totalDist/mo.getVelocity());
         }

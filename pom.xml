@@ -12,7 +12,7 @@
 
 	<modules>
 		<module>core</module>
-		<module>rcp</module>
+		
 		<module>ui</module>
 	</modules>
 
@@ -25,7 +25,7 @@
 	
 	<build>
 		<!-- Enabling tycho -->
-    <plugins>
+    <!-- <plugins>
 			<plugin>
           <groupId>org.eclipse.tycho</groupId>
           <artifactId>tycho-maven-plugin</artifactId>
@@ -33,7 +33,7 @@
 					<extensions>true</extensions>
 			</plugin>
 
-			<!-- Target runtime environment -->
+			Target runtime environment
 			<plugin>
         <groupId>org.eclipse.tycho</groupId>
         <artifactId>target-platform-configuration</artifactId>
@@ -60,7 +60,8 @@
       </plugin>
 
 		</plugins>
-
+		
+		-->
 	</build>
 
 	<repositories>

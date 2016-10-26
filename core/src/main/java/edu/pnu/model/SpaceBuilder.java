@@ -26,14 +26,22 @@ package edu.pnu.model;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.index.strtree.STRtree;
+
+import edu.pnu.model.dual.State;
+import edu.pnu.model.dual.Transition;
+import edu.pnu.model.primal.CellSpace;
 
 /**
  * @author hgryoo
@@ -47,6 +55,9 @@ public class SpaceBuilder {
     private Map<String, State> statesMap;
     private Map<String, Transition> transitionMap;
     private Map<String, CellSpace> cellspaceMap;
+    
+    /* entrances set */
+    private Set<String> entrances = new HashSet<String>();
     
     public SpaceBuilder() {
         statesMap = new HashMap<String, State>();
@@ -181,6 +192,15 @@ public class SpaceBuilder {
             Transition t = tit.next();
             sl.addTransition(t);
         }
+        
+        Collection<CellSpace> cells = cellspaceMap.values();
+        Iterator<CellSpace> cit = cells.iterator();
+        while(cit.hasNext()) {
+            CellSpace c = cit.next();
+            sl.addCellSpace(c);
+        }
+        
+        sl.buildIndex();
         
         return sl;
     }

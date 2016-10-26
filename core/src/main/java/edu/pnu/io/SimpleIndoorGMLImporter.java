@@ -49,7 +49,7 @@ public class SimpleIndoorGMLImporter {
         
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
-        SimpleIndoorGMLHandler handler = new SimpleIndoorGMLHandler();
+        SimpleIndoorGMLHandlerNG handler = new SimpleIndoorGMLHandlerNG();
         parser.parse(file, handler);
         builder = handler.getSpaceBuilder();
     }
@@ -60,7 +60,7 @@ public class SimpleIndoorGMLImporter {
     
     public static void main(String[] args) {
         try {
-            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/LWM_IGML.gml");
+            SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_LWM_2D.gml");
             
             SpaceLayer l = importer.getSpaceLayer();
             

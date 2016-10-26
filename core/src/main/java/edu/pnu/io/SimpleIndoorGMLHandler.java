@@ -25,7 +25,9 @@
 package edu.pnu.io;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.xml.sax.Attributes;
@@ -38,9 +40,9 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
-import edu.pnu.model.CellSpace;
 import edu.pnu.model.SpaceBuilder;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.primal.CellSpace;
 
 /**
  * @author hgryoo
@@ -54,8 +56,10 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
     private static final String INDOOR_CORE_NS = "http://www.opengis.net/indoorgml/1.0/core"; 
 
     private boolean pos;
+    private boolean desc;
     
     private String id;
+    
     private Point p;
     private LineString l;
     private Polygon poly;
@@ -63,6 +67,8 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
     private List<Coordinate> coords = new ArrayList<Coordinate>();
     private List<String> neighbors = new ArrayList<String>();
     private String duality;
+    
+    private Map<Object, Object> userData = new HashMap<Object, Object>();
     
     private GeometryFactory geomFac = new GeometryFactory();
     private SpaceBuilder builder = new SpaceBuilder();
@@ -82,8 +88,9 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             duality = attributes.getValue("xlink:href").replaceAll("#", "");
         } else if(qName.contains("pos")) {
             pos = true;
+        } else if(qName.contains("description")) {
+            desc = true;
         } else if(qName.contains("IndoorFeatures")) {
-            
             attributes.getValue("xmlns");
         }
     }
@@ -99,9 +106,7 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             
             builder.addState(s);
             neighbors.clear();
-            
         } else if(qName.contains("Transition")) {
-            
             //Transition t = new Transition(id, l);
             
             String aId = neighbors.get(0);
@@ -113,14 +118,6 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             if(first == null || second == null) {
                 LOGGER.fatal("transition has null neighbor =>\n" + neighbors);
             }
-            
-            /*
-            LOGGER.fatal(first.getPoint().getCoordinate() 
-                    + " , " 
-                    + second.getPoint().getCoordinate()
-                    + "=>\n"
-                    + l.getCoordinateN(0) + " , " + l.getCoordinateN( l.getCoordinates().length - 1 ));
-            */
             
             builder.createTransition(id, first, second, l);
             neighbors.clear();
@@ -164,10 +161,20 @@ public class SimpleIndoorGMLHandler extends DefaultHandler {
             coords.add(coord);
             pos = false;
         }
-    }
-    
-    public void disposeIndex() {
-    	
+        
+        if(desc) {
+            String description = new String(ch, start, length).trim();
+            String[] ds = description.split(":");
+            
+            userData.clear();
+            for(String s : ds) {
+                String[] key_value = s.split("=");
+                String key = key_value[0];
+                String value = key_value[1];
+                userData.put(key, value);
+            }
+            desc = false;
+        }
     }
     
     public SpaceBuilder getSpaceBuilder() {

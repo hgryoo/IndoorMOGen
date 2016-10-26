@@ -42,10 +42,10 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.strtree.STRtree;
 
-import edu.pnu.model.CellSpace;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
-import edu.pnu.model.Transition;
+import edu.pnu.model.dual.State;
+import edu.pnu.model.dual.Transition;
+import edu.pnu.model.primal.CellSpace;
 import edu.pnu.util.GeometryUtil;
 
 /**
@@ -80,7 +80,7 @@ public class CoordinateGraph {
             CellSpace c = s.getDuality();
             
             if(c != null) {
-            	index.insert(c.getGeom().getEnvelopeInternal(), c);
+            	index.insert(c.getGeometry2D().getEnvelopeInternal(), c);
             	addCoordinatefromState(s);
             }
         }
@@ -95,7 +95,7 @@ public class CoordinateGraph {
         
         List<CellSpace> flatEqual = new ArrayList<CellSpace>();
         for(CellSpace cell : cList) {
-            Polygon poly = cell.getGeom();
+            Polygon poly = cell.getGeometry2D();
             if(poly.contains(qPoint)) {
                 flatEqual.add(cell);
             }

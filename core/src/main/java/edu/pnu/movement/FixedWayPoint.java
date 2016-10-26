@@ -31,10 +31,10 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
-import edu.pnu.model.State;
+import edu.pnu.model.dual.State;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.model.movingobject.MovingObject;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
@@ -57,16 +57,16 @@ public class FixedWayPoint extends AbstractWayPoint {
     public Coordinate getNext(MovingObject mo, long time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
-            //TODO START¿Í END´Â StateÀÇ CoordinateÀÌ¾î¾ß ÇÑ´Ù.
+            //TODO STARTï¿½ï¿½ ENDï¿½ï¿½ Stateï¿½ï¿½ Coordinateï¿½Ì¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
             Coordinate end = graph.getStateIndex(getWaypoint()).getPoint().getCoordinate();
-            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentCoord(), end);
+            List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentPosition(), end);
             if(pathCoords.isEmpty()) {
-                pathCoords = mo.getPossibleEntrance(mo.getCurrentCoord());
+                pathCoords = mo.getPossibleEntrance(mo.getCurrentPosition());
                 
                 if(pathCoords.isEmpty()) {
                     LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
                     mo.setMovement(new Stop());
-                    return mo.getCurrentCoord();
+                    return mo.getCurrentPosition();
                 }
             }
             Path path = new Path(pathCoords);
@@ -77,9 +77,9 @@ public class FixedWayPoint extends AbstractWayPoint {
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
-            double nextDist = GeometryUtil.distance(mo.getCurrentCoord(), nextCoord);
+            double nextDist = GeometryUtil.distance(mo.getCurrentPosition(), nextCoord);
             if(totalDist < nextDist) {
-                newCoord = GeometryUtil.fromTo(mo.getCurrentCoord(), nextCoord, totalDist);
+                newCoord = GeometryUtil.fromTo(mo.getCurrentPosition(), nextCoord, totalDist);
                 totalDist = 0;
             } else {
                 newCoord = nextCoord;

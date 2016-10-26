@@ -31,9 +31,9 @@ import org.apache.log4j.Logger;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
-import edu.pnu.model.MovingObject;
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.graph.CoordinateGraph;
+import edu.pnu.model.movingobject.MovingObject;
 import edu.pnu.util.DijkstraPathFinder;
 import edu.pnu.util.GeometryUtil;
 
@@ -68,15 +68,15 @@ public class RandomWayPoint extends AbstractWayPoint {
             Coordinate randomDest = getRandomCoordinate();
             setWaypoint(randomDest);
             
-            Coordinate fromOn = graph.getNearestCoordinte(mo.getCurrentCoord());
+            Coordinate fromOn = graph.getNearestCoordinte(mo.getCurrentPosition());
             Coordinate toOn = graph.getNearestCoordinte(getWaypoint());
             
-            //TODO ÇöÀç´Â START¿Í END´Â StateÀÇ CoordinateÀÌ¾î¾ß ÇÑ´Ù.
+            //TODO ï¿½ï¿½ï¿½ï¿½ï¿½ STARTï¿½ï¿½ ENDï¿½ï¿½ Stateï¿½ï¿½ Coordinateï¿½Ì¾ï¿½ï¿½ ï¿½Ñ´ï¿½.
             List<Coordinate> pathCoords = finder.getShortestPath(fromOn, toOn);
             if(pathCoords.isEmpty()) {
                 LOGGER.fatal("DijkstraPathFinder can not found the destiantion");
-                pathCoords.add(mo.getCurrentCoord());
-                pathCoords.add(graph.getNeighbors(mo.getCurrentCoord()).get(0));
+                pathCoords.add(mo.getCurrentPosition());
+                pathCoords.add(graph.getNeighbors(mo.getCurrentPosition()).get(0));
             }
             
             Path path = new Path(pathCoords);
@@ -87,9 +87,9 @@ public class RandomWayPoint extends AbstractWayPoint {
         Coordinate newCoord = null;
         while(totalDist > 0) {
             Coordinate nextCoord = getPath().getNext(mo.getVelocity());
-            double nextDist = GeometryUtil.distance(mo.getCurrentCoord(), nextCoord);
+            double nextDist = GeometryUtil.distance(mo.getCurrentPosition(), nextCoord);
             if(totalDist < nextDist) {
-                newCoord = GeometryUtil.fromTo(mo.getCurrentCoord(), nextCoord, totalDist);
+                newCoord = GeometryUtil.fromTo(mo.getCurrentPosition(), nextCoord, totalDist);
                 totalDist = 0;
             } else {
                 newCoord = nextCoord;
@@ -105,7 +105,7 @@ public class RandomWayPoint extends AbstractWayPoint {
         if(reaminTime > 0) {
             mo.addHistory(reaminTime, newCoord);
             mo.setMovement(mo.getNextMovement());
-            //MovingObject¿¡ ½Ã°£ Áß¿¡ ³¡³µ´Ù°í ½ÅÈ£¸¦ Áà¾ßÇÔ
+            //MovingObjectï¿½ï¿½ ï¿½Ã°ï¿½ ï¿½ß¿ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ù°ï¿½ ï¿½ï¿½È£ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
             
             //newCoord = getNext(mo, totalDist/mo.getVelocity());
         }

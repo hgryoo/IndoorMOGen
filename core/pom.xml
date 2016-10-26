@@ -60,6 +60,14 @@
 			<artifactId>proj4j</artifactId>
 			<version>0.1.0</version>
 		</dependency>
+		
+		<!-- https://mvnrepository.com/artifact/net.postgis/postgis-jdbc -->
+		<dependency>
+		    <groupId>net.postgis</groupId>
+		    <artifactId>postgis-jdbc</artifactId>
+		    <version>2.2.1</version>
+		</dependency>
+		
 
 	</dependencies>
 </project>
