@@ -34,14 +34,13 @@ import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.geom.Triangle;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.operation.distance3d.Distance3DOp;
 import com.vividsolutions.jts.operation.distance3d.PlanarPolygon3D;
-import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
 
 import edu.pnu.model.dual.State;
 import edu.pnu.model.dual.Transition;
@@ -67,6 +66,7 @@ public class SpaceLayer implements CellSpaceIndex {
     
     /* entrances set */
     protected Set<State> entrances = new HashSet<State>();
+    protected Map<String, List<State>> usageMap = new HashMap<String, List<State>>();
     
     public SpaceLayer() {
         nodes = new ArrayList<State>();
@@ -89,6 +89,11 @@ public class SpaceLayer implements CellSpaceIndex {
                 if(usage.equalsIgnoreCase("ENTRANCE")) {
                     entrances.add(s);
                 }
+                
+                if(!usageMap.containsKey(usage)) {
+                    usageMap.put(usage, new ArrayList<State>());
+                }
+                usageMap.get(usage).add(s);
             }
         }
     }
@@ -119,6 +124,23 @@ public class SpaceLayer implements CellSpaceIndex {
     public void addCellSpace(CellSpace c) {
         cells.add(c);
         cellsMap.put(c.getId(), c);
+        
+        Map userData = c.getUserData();
+        if(userData != null) {
+            if(userData.containsKey("USAGE")) {
+                String usage = (String) userData.get("USAGE");
+                if(!usageMap.containsKey(usage)) {
+                    usageMap.put(usage, new ArrayList<State>());
+                }
+                usageMap.get(usage).add(c.getDuality());
+            } else if(userData.containsKey("SECTION")) {
+                String section = (String) userData.get("SECTION");
+                if(!usageMap.containsKey(section)) {
+                    usageMap.put(section, new ArrayList<State>());
+                }
+                usageMap.get(section).add(c.getDuality());
+            }
+        }
     }
     
     public CellSpace getCellSpace(String id) {
@@ -182,6 +204,11 @@ public class SpaceLayer implements CellSpaceIndex {
             polygonIdx.insert(p.getEnvelopeInternal(), c);
         }
         polygonIdx.build();
+        
+        for(CellSpace c : cells) {
+            List<Triangle> triangles = c.getTriangles();
+            System.out.println();
+        }
     }
     
     public CellSpace getCellSpace(Coordinate c) {
