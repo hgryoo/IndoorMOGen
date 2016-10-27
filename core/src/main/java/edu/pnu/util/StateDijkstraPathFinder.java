@@ -35,9 +35,11 @@ import java.util.Queue;
 import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
 
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.dual.State;
+import edu.pnu.model.dual.Transition;
 
 /**
  * @author hgryoo
@@ -136,9 +138,17 @@ public class StateDijkstraPathFinder {
     }
     
     private double getDistance(State from, State to) {
-            return GeometryUtil.distance(
-                    from.getPoint().getCoordinate(),
-                    to.getPoint().getCoordinate());
+        Transition t = from.getConnectWith(to);
+        LineString l = t.getGeometry();
+        Coordinate[] cs = l.getCoordinates();
+        
+        double distance = 0.0f;
+        for(int i = 0; i < cs.length - 1; i++) {
+            distance += GeometryUtil.distance(
+                    cs[i],
+                    cs[i + 1]);
+        }
+        return distance;
     }
     
     private class DistanceComparator implements Comparator<State> {

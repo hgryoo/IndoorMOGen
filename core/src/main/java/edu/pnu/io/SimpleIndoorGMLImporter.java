@@ -45,8 +45,10 @@ public class SimpleIndoorGMLImporter {
     private SpaceBuilder builder;
     
     public SimpleIndoorGMLImporter(String url) throws ParserConfigurationException, SAXException, IOException {
-        File file = new File(url);
-        
+        this(new File(url));
+    }
+    
+    public SimpleIndoorGMLImporter(File file)  throws ParserConfigurationException, SAXException, IOException  {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         SAXParser parser = factory.newSAXParser();
         SimpleIndoorGMLHandlerNG handler = new SimpleIndoorGMLHandlerNG();

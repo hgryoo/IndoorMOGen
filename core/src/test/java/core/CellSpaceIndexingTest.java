@@ -61,7 +61,7 @@ public class CellSpaceIndexingTest {
             Coordinate qc = s.getPoint().getCoordinate();
             CellSpace queryCell = layer.getCellSpace(qc);
             
-            if(queryCell != null && !duality.equals(queryCell)) {
+            if(queryCell == null || !duality.equals(queryCell)) {
                 fail();
             }
         }

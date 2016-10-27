@@ -22,12 +22,12 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  */
-package edu.pnu.model.movingobject;
+package edu.pnu.movement;
 
 /**
  * @author hgryoo
  *
  */
-public class ClientObject extends MovingObject {
-
+public interface Waypoint {
+    boolean nextCondition();
 }

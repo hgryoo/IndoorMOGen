@@ -34,12 +34,14 @@ import java.util.Set;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.index.strtree.STRtree;
 import com.vividsolutions.jts.operation.distance3d.Distance3DOp;
 import com.vividsolutions.jts.operation.distance3d.PlanarPolygon3D;
+import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder;
 
 import edu.pnu.model.dual.State;
 import edu.pnu.model.dual.Transition;
@@ -183,6 +185,7 @@ public class SpaceLayer implements CellSpaceIndex {
     }
     
     public CellSpace getCellSpace(Coordinate c) {
+
         Envelope queryEnv = new Envelope(c);
         List<CellSpace> cList = polygonIdx.query(queryEnv);
         
@@ -202,10 +205,13 @@ public class SpaceLayer implements CellSpaceIndex {
             CellSpace min = null;
             double minValue = Double.MAX_VALUE;
             for(CellSpace cell : flatEqual) {
-                double dist = Distance3DOp.distance(cell.getGeometry2D(), qPoint);
-                if(dist < minValue) {
-                    minValue = dist;
-                    min = cell;
+                double dist = Distance3DOp.distance(cell.getDuality().getPoint(), qPoint);
+                double dz = cell.getGeometry2D().getCoordinate().z - c.z;
+                if(Math.abs(dz) < 3) {
+                    if(dist < minValue) {
+                        minValue = dist;
+                        min = cell;
+                    }
                 }
             }
             result = min;

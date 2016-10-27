@@ -22,20 +22,19 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  */
-package edu.pnu.movement;
+package edu.pnu.model.movingobject;
 
-import com.vividsolutions.jts.geom.Coordinate;
-
-import edu.pnu.model.movingobject.MovingObject;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author hgryoo
  *
  */
-public class RandomWalk implements Walk {
+public class MovingObjectManager {
 
-    public Coordinate getNext(MovingObject mo, long time) {
-        return null;
-    }
-
+    private Map<String, MovingObject> moMap;
+    private Map<String, List<String>> cellMoIdx;
+    
+    
 }

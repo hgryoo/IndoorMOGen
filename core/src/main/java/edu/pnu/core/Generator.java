@@ -50,7 +50,7 @@ public class Generator {
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
     
     public static final long SAMPLING = 1;
-    public static final long END = 10000;
+    public static final long END = 7200;
     
     private Date startTime;
     private List<State> entrances = new ArrayList<State>();
@@ -66,20 +66,20 @@ public class Generator {
     public Generator(Date startTime, SpaceLayer space) {
         this.startTime = startTime;
         this.space = space;
+        graph = new CoordinateGraph(space);
     }
     
     public Generator(SpaceLayer layer) throws Exception {
         this.space = layer;
-        this.graph = new CoordinateGraph(space);
         clock.reset();
-    }
-    
-    public CoordinateGraph getGraph() {
-        return graph;
     }
     
     public void setSpace(SpaceLayer space) {
         this.space = space;
+    }
+    
+    public CoordinateGraph getGraph() {
+        return graph;
     }
     
     public SpaceLayer getSpaceLayer() {
@@ -100,9 +100,9 @@ public class Generator {
                 if(!dead.contains(m)) {
                     m.update(SAMPLING);
                 }
-                if(m.getMovement() instanceof Stop) {
+                /*if(m.getMovement() instanceof Stop) {
                     dead.add(m);
-                }
+                }*/
             }
             return true;
         } else {

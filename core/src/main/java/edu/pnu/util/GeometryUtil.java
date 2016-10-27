@@ -24,8 +24,11 @@
  */
 package edu.pnu.util;
 
+import java.util.Random;
+
 import com.vividsolutions.jts.algorithm.CGAlgorithms3D;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.math.Vector3D;
 
@@ -35,6 +38,8 @@ import com.vividsolutions.jts.math.Vector3D;
  */
 public class GeometryUtil {
     private static final int zOrdinate = Coordinate.Z;
+    
+    private static GeometryFactory factory = null;
     
     public static double distance(Coordinate a, Coordinate b) {
         return CGAlgorithms3D.distance(a, b);
@@ -55,7 +60,46 @@ public class GeometryUtil {
         return new Coordinate(result.getX(), result.getY(), result.getZ());
     }
     
+    public static GeometryFactory getGeometryFactory() {
+        if(factory == null) {
+            factory = new GeometryFactory();
+        }
+        return factory;
+    }
+    
     public boolean PointInPolygon3D(Coordinate c, Polygon p) {
         return false;
     }
+    
+    public static Vector3D getNoiseVector(final double sigma, final int count) {
+        Random rand = new Random();
+        
+        double offsetX = 0;
+        double offsetY = 0;
+        
+        for(int i = 0; i < count; i++) {
+                offsetX += Math.cos(Math.toRadians(rand.nextInt(360))) * rand.nextGaussian() * sigma;
+                offsetY += Math.sin(Math.toRadians(rand.nextInt(360))) * rand.nextGaussian() * sigma;
+        }
+        
+        offsetX /= count;
+        offsetY /= count;
+        
+        return new Vector3D(offsetX, offsetY, 0);
+    }
+    
+    public static Coordinate getNoisedCoordinate(Coordinate origin, Vector3D noise) {
+        Coordinate noisedCoordinate = new Coordinate
+                (origin.x + noise.getX(), origin.y + noise.getY() , origin.z + noise.getZ());
+        return noisedCoordinate;
+    }
+    
+    public static Coordinate getNoisedCoordinate(Coordinate origin, final double sigma, final int count) {
+        Vector3D noise = getNoiseVector(sigma, count);
+        Coordinate noisedCoordinate = new Coordinate
+                (origin.x + noise.getX(), origin.y + noise.getY() , origin.z + noise.getZ());
+        return noisedCoordinate;
+    }
+    
+    
 }

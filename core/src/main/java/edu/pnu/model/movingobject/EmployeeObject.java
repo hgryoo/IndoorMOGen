@@ -22,20 +22,42 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  * 
  */
-package edu.pnu.movement;
+package edu.pnu.model.movingobject;
 
-import com.vividsolutions.jts.geom.Coordinate;
+import org.apache.log4j.Logger;
 
-import edu.pnu.model.movingobject.MovingObject;
+import edu.pnu.core.Generator;
+import edu.pnu.model.dual.State;
+import edu.pnu.movement.FixedWayPointNG;
+import edu.pnu.movement.Movement;
+import edu.pnu.movement.Stop;
 
 /**
  * @author hgryoo
  *
  */
-public class RandomWalk implements Walk {
-
-    public Coordinate getNext(MovingObject mo, long time) {
-        return null;
+public class EmployeeObject extends MovingObject {
+    
+    private static final Logger LOGGER = Logger.getLogger(MovingObject.class);
+    
+    State destination;
+    
+    public EmployeeObject(Generator gen, State start, State destination) {
+        super(gen, start);
+        this.destination = destination;
+        movement = getDefaultMovement();
     }
-
+    
+    public Movement getDefaultMovement() {
+        return new FixedWayPointNG(gen.getSpaceLayer(), this, destination);
+    }
+    
+    public Movement getNextMovement() {
+        return new Stop();
+    }
+    
+    public Movement getTerminateMovement() {
+        return new Stop();
+    }
+    
 }

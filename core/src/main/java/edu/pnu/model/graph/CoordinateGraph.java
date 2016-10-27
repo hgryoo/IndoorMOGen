@@ -159,7 +159,7 @@ public class CoordinateGraph {
     }
     
     private void addCoordinatefromTransition(Transition t) {
-        LineString l = t.getLine();
+        LineString l = t.getGeometry();
         Coordinate[] coordinates = l.getCoordinates();
         for(int i = 0; i < coordinates.length - 1; i++) {
             registerCoordinate(coordinates[i], coordinates[i + 1]);

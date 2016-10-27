@@ -47,7 +47,7 @@ public class Transition {
         return id;
     }
 
-    public LineString getLine() {
+    public LineString getGeometry() {
         return line;
     }
     

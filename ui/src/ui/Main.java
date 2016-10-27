@@ -1,6 +1,8 @@
 package ui;
 
 import java.io.File;
+import java.util.Iterator;
+import java.util.Set;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -8,11 +10,20 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.widgets.Tree;
+
+import edu.pnu.io.SimpleIndoorGMLImporter;
+import edu.pnu.model.SpaceLayer;
+import edu.pnu.model.dual.State;
 
 public class Main {
     
@@ -27,7 +38,12 @@ public class Main {
 
     
     private File igmlFile;
+    private Tree tree;
+    private DateTime dateTime;
     
+    
+    private SpaceLayer layer;
+    private Table table;
     
     /**
      * Launch the application.
@@ -94,8 +110,42 @@ public class Main {
                 if(igmlFile.canRead()) {
                     txtfilePath.setEnabled(false);
                     btnBrowse.setEnabled(false);
-                } else {
                     
+                    SimpleIndoorGMLImporter importer;
+                    try {
+                        importer = new SimpleIndoorGMLImporter(igmlFile);
+                        layer = importer.getSpaceLayer();
+                        
+
+                        String[] titles = { "ID", "Duality", "Type", "Floor" };
+                        for (int i = 0; i < titles.length; i++) {
+                            TableColumn column = new TableColumn(table, SWT.NONE);
+                            column.setText(titles[i]);
+                            table.getColumn(i).pack();
+                        }
+                        
+                        for (int i=0; i<titles.length; i++) {
+                            table.getColumn (i).pack ();
+                        }
+                        
+                        
+                        Set<State> entrances = layer.getEntrances();
+                        Iterator it = entrances.iterator();
+                        while(it.hasNext()) {
+                            TableItem item = new TableItem(table, SWT.NONE);
+                            State s = (State) it.next();
+                            item.setText(0, s.getId());
+                            item.setText(1, s.getDuality().getId());
+                            item.setText(2, (String) s.getUserData().get("USAGE"));
+                            item.setText(3, (String) s.getUserData().get("FLOOR"));
+                        }
+                        
+                    } catch (Exception e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                } else {
+                   //TODO : error dialog 
                 }
             }
         });
@@ -114,7 +164,22 @@ public class Main {
         gd_btnNewButton_2.widthHint = 36;
         btnCancel.setLayoutData(gd_btnNewButton_2);
         btnCancel.setText("Cancel");
-        new Label(shell, SWT.NONE);
+        
+        tree = new Tree(shell, SWT.BORDER);
+        tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        
+        
+        /* Table */
+        table = new Table(shell, SWT.BORDER | SWT.FULL_SELECTION);
+        table.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        table.setHeaderVisible(true);
+        table.setLinesVisible(true);
+        
+        GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
+        data.heightHint = 200;
+        table.setLayoutData(data);
+        
+        dateTime = new DateTime(shell, SWT.BORDER);
         new Label(shell, SWT.NONE);
         
         shell.open();

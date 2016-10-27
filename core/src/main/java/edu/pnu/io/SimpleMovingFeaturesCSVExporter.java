@@ -112,9 +112,9 @@ public class SimpleMovingFeaturesCSVExporter {
             for(CSVOutput output : outputList) {
                 writer.write(output.id);
                 writer.write(",");
-                writer.write(String.valueOf(output.start/1000));
+                writer.write(String.valueOf(output.start));
                 writer.write(",");
-                writer.write(String.valueOf(output.end/1000));
+                writer.write(String.valueOf(output.end));
                 writer.write(",");
                 writer.write(output.sCoord);
                 writer.write(" ");
