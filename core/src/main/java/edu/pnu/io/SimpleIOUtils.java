@@ -37,6 +37,11 @@ public class SimpleIOUtils {
     }
     
     public static String coordinateToStringFormat(Coordinate coord, int decimal) {
+        
+        if(coord == null) {
+            throw new NullPointerException("Coordinate class to make format is not assigned");
+        }
+        
         return String.format("%." + decimal + "f", coord.x) + " " +
                 String.format("%." + decimal + "f", coord.y) + " " +
                 String.format("%." + decimal + "f", coord.z);

@@ -24,6 +24,9 @@
  */
 package edu.pnu.model;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -31,8 +34,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  *
  */
 public class History {
+    
     private double time;
     private Coordinate coord;
+    
+    private Map<String, Object> userData = new HashMap<String, Object>();
     
     public String getSchema() {
         return null;
@@ -49,6 +55,18 @@ public class History {
     
     public Coordinate getCoord() {
         return coord;
+    }
+    
+    public void setUserData(String key, Object o) {
+        userData.put(key, o);
+    }
+    
+    public Object getUserData(String key) {
+        return userData.get(key);
+    }
+    
+    public Map<String, Object> getUserDataMap() {
+        return userData;
     }
 
     @Override

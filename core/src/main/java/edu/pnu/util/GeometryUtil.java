@@ -115,21 +115,37 @@ public class GeometryUtil {
         return new Coordinate(xSum / 3, ySum / 3, zSum / 3);
     }
     
+    public static Coordinate getRandomPoint(Polygon p) {
+        return getRandomPoint(getPolygontoTriangle(p));
+    }
+    
     public static Coordinate getRandomPoint(Triangle t) {
         Random rand = new Random();
         
         double r1 = rand.nextDouble();
         double r2 = rand.nextDouble();
         
-        if((r1 == r2) && r1 == 1) {
-            r2 = rand.nextDouble();
+        if(r1 + r2 > 1) {
+            r1 = 1 - r1;
+            r2 = 1 - r2;
         }
         
-        double x = t.p0.x + r1 * (t.p1.x - t.p0.x) + r2 * (t.p2.x - t.p0.x);
-        double y = t.p0.y + r1 * (t.p1.y - t.p0.y) + r2 * (t.p2.y - t.p0.y);
-        double z = t.p0.z + r1 * (t.p1.z - t.p0.z) + r2 * (t.p2.z - t.p0.z);
+        /*if((r1 == r2) && r1 == 1) {
+            r2 = rand.nextDouble();
+        }*/
+        
+        double x = (1 - Math.sqrt(r1)) * t.p0.x + (Math.sqrt(r1) * (1 - r2)) * t.p1.x + (Math.sqrt(r1) * (r2)) * t.p2.x;
+        double y = (1 - Math.sqrt(r1)) * t.p0.y + (Math.sqrt(r1) * (1 - r2)) * t.p1.y + (Math.sqrt(r1) * (r2)) * t.p2.y;
+        double z = (1 - Math.sqrt(r1)) * t.p0.z + (Math.sqrt(r1) * (1 - r2)) * t.p1.z + (Math.sqrt(r1) * (r2)) * t.p2.z;
         
         return new Coordinate(x, y, z);
+    }
+    
+    public static Triangle getPolygontoTriangle(Polygon p) {
+        Coordinate c1 = p.getCoordinates()[0];
+        Coordinate c2 = p.getCoordinates()[1];
+        Coordinate c3 = p.getCoordinates()[2];
+        return new Triangle(c1, c2, c3);
     }
     
     public static Coordinate getRandomPoint(Coordinate a, Coordinate b) {
@@ -145,13 +161,13 @@ public class GeometryUtil {
     }
     
     public static Coordinate getRandomPoint(CellSpace c) {
-        List<Triangle> triangles = c.getTriangles();
-        Map<Triangle, Double> weight = new HashMap<Triangle, Double>();
-        for(Triangle t : triangles) {
-            weight.put(t, t.area3D());
+        List<Polygon> triangles = c.getTriangles();
+        Map<Polygon, Double> weight = new HashMap<Polygon, Double>();
+        for(Polygon t : triangles) {
+            weight.put(t, getPolygontoTriangle(t).area3D());
         }
-        Triangle random = getWeightedRandom(weight, new Random());
-        return getRandomPoint(random);
+        Polygon random = getWeightedRandom(weight, new Random());
+        return getRandomPoint(getPolygontoTriangle(random));
     }
     
     private static <E> E getWeightedRandom(Map<E, Double> weights, Random random) {
@@ -170,23 +186,43 @@ public class GeometryUtil {
         return result;
     }
     
+    public static Polygon getNearestPolygon(List<Polygon> ps, Coordinate c) {
+        double minValue = Double.MAX_VALUE;
+        Polygon min = null;
+        
+        for(Polygon p : ps) {
+            double dist = GeometryUtil.distance(p.getCentroid().getCoordinate(), c);
+            if(dist < minValue) {
+                minValue = dist;
+                min = p;
+            }
+        }
+        
+        return min;
+    }
+    
     public static boolean pointInTriangle(Triangle t, Coordinate p) {
         Vector3D a = new Vector3D(t.p0);
         Vector3D b = new Vector3D(t.p1);
         Vector3D c = new Vector3D(t.p2);
         
         Vector3D pv = new Vector3D(p);
-        
+
         if(sameside(pv, a, b, c) && sameside(pv, b, a, c) && sameside(pv, c, a, b)) {
-            Vector3D vc1 = cross(
+            /*Vector3D vc1 = cross(
                     subtract(a, b),
                     subtract(a, c)
                     );
-            if(Math.abs(subtract(a, pv).dot(vc1)) <= 0.01f) {
+            if(Math.abs(subtract(a, pv).dot(vc1)) <= 0.02f) {
                 return true;
-            }
+            }*/
+            return true;
         }
         return false;
+    }
+    
+    public static boolean pointInTriangle(Polygon p, Coordinate c) {
+        return p.contains(getGeometryFactory().createPoint(c));
     }
     
     private static boolean sameside(Vector3D p1, Vector3D p2, Vector3D A, Vector3D B) {
@@ -197,7 +233,7 @@ public class GeometryUtil {
                 subtract(B, A),
                 subtract(p2, A));
         if (cp1.dot(cp2) >= 0) return true;
-        return false;
+        else return false;
     }
     
     private static Vector3D cross(Vector3D a, Vector3D b) {

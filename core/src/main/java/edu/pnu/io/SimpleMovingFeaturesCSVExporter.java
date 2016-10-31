@@ -28,6 +28,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -44,6 +46,8 @@ public class SimpleMovingFeaturesCSVExporter {
     private Map<String, List<History>> trajectory = new HashMap<String, List<History>> ();
     private List<CSVOutput> outputList = new LinkedList<CSVOutput>();
     
+    private Date startTime = new Date();
+    
     public SimpleMovingFeaturesCSVExporter(String id) {
         this.id = id;
     }
@@ -54,6 +58,10 @@ public class SimpleMovingFeaturesCSVExporter {
         }
         trajectory.put(mvId, history);
     }
+    
+    public void setStartTime(Date date) {
+        this.startTime = date;
+    }
 
     public class CSVOutput implements Comparable<CSVOutput> {
         public String id;
@@ -62,6 +70,8 @@ public class SimpleMovingFeaturesCSVExporter {
         
         public String sCoord;
         public String eCoord;
+        
+        public Map<String, Object> userData;
         
         public int compareTo(CSVOutput o) {
             if(start < o.start) {
@@ -93,6 +103,7 @@ public class SimpleMovingFeaturesCSVExporter {
                 output.end = next.getTime();
                 output.sCoord = SimpleIOUtils.coordinateToStringFormat(prev.getCoord(), 5);
                 output.eCoord = SimpleIOUtils.coordinateToStringFormat(next.getCoord(), 5);
+                output.userData = prev.getUserDataMap();
                 outputList.add(output);
                 prev = next;
             }
@@ -104,7 +115,9 @@ public class SimpleMovingFeaturesCSVExporter {
         try {
             writer = new BufferedWriter(new FileWriter(new File(path.toString())));
             
-            writer.write("@stboundedby,urn:x-ogc:def:crs:EPSG:6.6:4326,3D,50.23 9.23 0,50.31 9.27 0,2012-01-17T12:33:00Z,2012-01-17T12:49:40Z,sec");
+            SimpleDateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+            
+            writer.write("@stboundedby,urn:x-ogc:def:crs:EPSG:6.6:4326,3D,50.23 9.23 0,50.31 9.27 0," + dFormat.format(startTime) + ",2012-01-17T12:49:40Z,sec");
             writer.newLine();
             writer.write("@columns,mfidref,trajectory,\"typecode\",xsd:integer");
             writer.newLine();
@@ -120,7 +133,7 @@ public class SimpleMovingFeaturesCSVExporter {
                 writer.write(" ");
                 writer.write(output.eCoord);
                 writer.write(",");
-                writer.write(String.valueOf(2));
+                writer.write(String.valueOf(output.userData.get("TYPE")));
                 writer.newLine();
             }
         } catch (IOException e) {

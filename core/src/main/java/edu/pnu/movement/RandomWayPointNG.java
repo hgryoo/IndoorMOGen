@@ -30,11 +30,10 @@ import java.util.Queue;
 import java.util.Random;
 
 import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.MultiPoint;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.math.Vector3D;
 import com.vividsolutions.jts.operation.distance3d.Distance3DOp;
-import com.vividsolutions.jts.shape.random.RandomPointsBuilder;
 
 import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.dual.State;
@@ -63,9 +62,7 @@ public class RandomWayPointNG implements Movement {
         this.layer = layer;
         finder = new StateDijkstraPathFinder(layer);
         
-        Coordinate current = mo.getCurrentPosition();
-        
-        CellSpace currentCell = layer.getCellSpace(current);
+        CellSpace currentCell = mo.getCurrentCellSpace();
         State currentState = currentCell.getDuality();
         
         do {
@@ -91,17 +88,25 @@ public class RandomWayPointNG implements Movement {
         return null;
     }
     
-    public Coordinate getNext(MovingObject mo, long time) {
-        if(idx >= path.size() - 1) {
+    private Coordinate getNoisedCoordinate(Coordinate origin, State s) {
+        Polygon currentPoly = s.getDuality().getTriangle(origin);
+        
+        if(currentPoly == null) {
+            System.out.println();
+        }
+        
+        return GeometryUtil.getRandomPoint(currentPoly);
+    }
+    
+    public Coordinate getNext(MovingObject mo, double time) {
+        if(getNextState() == null) {
             return null;
         }
         
         Coordinate origin = mo.getCurrentPosition();
-        CellSpace originCell = getCurrentState().getDuality();
         
-        int noisedCount = 0;
         if(next == null) {
-            if(new Random().nextDouble() < 1.0) {
+            //if(new Random().nextDouble() < 1.1) {
                 Transition nextTransition = getCurrentState().getConnectWith(getNextState());
                 Point currentPoint = GeometryUtil.getGeometryFactory().createPoint(origin);     
                 Coordinate[] nearestPs = Distance3DOp.nearestPoints(currentPoint, nextTransition.getGeometry());
@@ -109,13 +114,15 @@ public class RandomWayPointNG implements Movement {
                 for(Coordinate nextCandidate : nearestPs) {
                     if(!origin.equals3D(nextCandidate)) {
                         Coordinate candidate = new Coordinate(nextCandidate.x, nextCandidate.y, origin.z);
+                        candidate = getNoisedCoordinate(origin, getCurrentState());
                         localPath.add(candidate);
                         break;
                     }
                 }
                 
                 if(localPath.isEmpty()) {
-                    localPath.add(origin);
+                    Coordinate noise = getNoisedCoordinate(origin, getCurrentState());
+                    localPath.add(noise);
                 }
                 
                 Coordinate peek = localPath.peek();
@@ -125,75 +132,19 @@ public class RandomWayPointNG implements Movement {
                 for(Coordinate c : coords) {
                     if(!c.equals3D(nextStateCoord) && !c.equals3D(peek)) {
                         double dot = Vector3D.dot(peek, nextStateCoord, c, nextStateCoord);
-                        if(dot > 0) localPath.add(c);
+                        if(dot > 0) {
+                            c = getNoisedCoordinate(c, getCurrentState());
+                            localPath.add(c);
+                        }
                     }
                 }
                 
+                nextStateCoord = getNoisedCoordinate(nextStateCoord, getNextState());
                 localPath.add(nextStateCoord);
                 next = localPath.poll();
-            }
-            else {
-                int cnt = 0;
-                Coordinate noisedCoordinate = null;
-                Vector3D noised = GeometryUtil.getNoiseVector(10, 3);
-                
-                CellSpace resultCell = null;
-                boolean contains = false;
-                do {
-                    noisedCoordinate = new Coordinate
-                                    (origin.x + noised.getX(), origin.y + noised.getY(), origin.z + noised.getZ());
-                    
-                    resultCell = layer.getCellSpace(noisedCoordinate);
-                    
-                    contains = originCell.equals(resultCell);
-                    if(!contains) {
-                        noised = new Vector3D(noised.getX() / 2, noised.getY() / 2, noised.getZ() / 2);
-                    }
-                    /*
-                    resultCell = layer.getCellSpace(noisedCoordinate);
-                    if(!originCell.equals(resultCell)) {
-                        noised = new Vector3D(noised.getX() / 2, noised.getY() / 2, noised.getZ() / 2);
-                    }*/
-                    if(cnt == 5) {
-                        noisedCoordinate = origin;
-                        break;
-                    }
-                    cnt++;
-                    //System.out.println(noised.toString() + "," + cnt++);
-                } while (!contains);
-                next = noisedCoordinate;
-                //System.out.println(next);
-            }
+            //}
         }
-       
-            /*else {
-                int cnt = 0;
-                Coordinate noisedCoordinate = null;
-                Vector3D noised = GeometryUtil.getNoiseVector(1, 3);
-                
-                CellSpace resultCell = null;
-                do {
-                    noisedCoordinate = new Coordinate
-                                    (origin.x + noised.getX(), origin.y + noised.getY(), origin.z + noised.getZ());
-                    
-                    resultCell = layer.getCellSpace(noisedCoordinate);
-                    if(!originCell.equals(resultCell)) {
-                        noised = new Vector3D(noised.getX() / 2, noised.getY() / 2, noised.getZ() / 2);
-                    }
-                    if(cnt == 5) {
-                        break;
-                    }
-                    System.out.println(noised.toString() + "," + cnt++);
-                    
-                } while (!originCell.equals(resultCell));
-                
-                System.out.println(next);
-                
-                next = noisedCoordinate;
-                
-                System.out.println(noisedCount++);
-            }*/
-        
+
         double totalDist = mo.getVelocity() * time;
         
         /*int cnt = 0;
@@ -226,19 +177,22 @@ public class RandomWayPointNG implements Movement {
         double nextDist = GeometryUtil.distance(origin, next);
         Coordinate nextStep = null;
         
-        if(totalDist < nextDist) {
-            nextStep = GeometryUtil.fromTo(origin, next, totalDist);
-            totalDist = 0;
-        } else {
-            nextStep = next;
-            if(localPath.isEmpty()) {
-                next = null;
-                idx++;
+        //while(totalDist > 0) {
+            if(totalDist < nextDist) {
+                nextStep = GeometryUtil.fromTo(origin, next, totalDist);
+                totalDist = 0;
             } else {
-                next = localPath.poll();
+                nextStep = next;
+                if(localPath.isEmpty()) {
+                    next = null;
+                    mo.setCurrentCellSpace(getNextState().getDuality());
+                    idx++;
+                } else {
+                    next = localPath.poll();
+                }
+                totalDist -= nextDist;
             }
-            totalDist -= nextDist;
-        }
+        //}
         
         return nextStep;
     }

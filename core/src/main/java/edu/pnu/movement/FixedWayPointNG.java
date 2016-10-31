@@ -63,12 +63,12 @@ public class FixedWayPointNG implements Movement {
         this.layer = layer;
         finder = new StateDijkstraPathFinder(layer);
         
-        Coordinate current = mo.getCurrentPosition();
-        CellSpace currentCell = layer.getCellSpace(current);
+        CellSpace currentCell = mo.getCurrentCellSpace();
         State currentState = currentCell.getDuality();
         
         State destState = waypoint;
         path = finder.getShortestPath(currentState, destState);
+        if(path.size() == 1) path.add(path.get(0));
     }
 
     private State getCurrentState() {
@@ -82,50 +82,58 @@ public class FixedWayPointNG implements Movement {
         return null;
     }
     
-    public Coordinate getNext(MovingObject mo, long time) {
-        if(idx >= path.size() - 1) {
+    public Coordinate getNext(MovingObject mo, double time) {
+        if(getNextState() == null) {
             return null;
         }
         
         Coordinate origin = mo.getCurrentPosition();
         
         if(next == null) {
-            Transition nextTransition = getCurrentState().getConnectWith(getNextState());
-            Point currentPoint = GeometryUtil.getGeometryFactory().createPoint(origin);     
-            Coordinate[] nearestPs = Distance3DOp.nearestPoints(currentPoint, nextTransition.getGeometry());
-            
-            for(Coordinate nextCandidate : nearestPs) {
-                if(!origin.equals3D(nextCandidate)) {
-                    Coordinate candidate = new Coordinate(nextCandidate.x, nextCandidate.y, origin.z);
-                    candidate = GeometryUtil.getNoisedCoordinate(candidate, 1, 3);
-                    localPath.add(candidate);
+            //if(new Random().nextDouble() < 0.1) {
+                Transition nextTransition = getCurrentState().getConnectWith(getNextState());
+                if(nextTransition != null) {
+                    Point currentPoint = GeometryUtil.getGeometryFactory().createPoint(origin);     
+                    Coordinate[] nearestPs = Distance3DOp.nearestPoints(currentPoint, nextTransition.getGeometry());
                     
-                    break;
-                }
-            }
-            
-            if(localPath.isEmpty()) {
-                origin = GeometryUtil.getNoisedCoordinate(origin, 1, 3);
-                localPath.add(origin);
-            }
-            
-            Coordinate peek = localPath.peek();
-            Coordinate nextStateCoord = getNextState().getPoint().getCoordinate();
-            
-            Coordinate[] coords = nextTransition.getGeometry().getCoordinates();
-            for(Coordinate c : coords) {
-                if(!c.equals3D(nextStateCoord) && !c.equals3D(peek)) {
-                    double dot = Vector3D.dot(peek, nextStateCoord, c, nextStateCoord);
-                    if(dot > 0) {
-                        c = GeometryUtil.getNoisedCoordinate(c, 1, 3);
-                        localPath.add(c);
+                    for(Coordinate nextCandidate : nearestPs) {
+                        if(!origin.equals3D(nextCandidate)) {
+                            Coordinate candidate = new Coordinate(nextCandidate.x, nextCandidate.y, origin.z);
+                            candidate = GeometryUtil.getNoisedCoordinate(candidate, 1, 3);
+                            localPath.add(candidate);
+                            
+                            break;
+                        }
                     }
                 }
-            }
-            
-            nextStateCoord = GeometryUtil.getNoisedCoordinate(nextStateCoord, 1, 3);
-            localPath.add(nextStateCoord);
-            next = localPath.poll();
+                
+                if(localPath.isEmpty()) {
+                    origin = GeometryUtil.getNoisedCoordinate(origin, 1, 3);
+                    localPath.add(origin);
+                }
+                
+                if(nextTransition != null) {
+                Coordinate peek = localPath.peek();
+                Coordinate nextStateCoord = getNextState().getPoint().getCoordinate();
+                
+                Coordinate[] coords = nextTransition.getGeometry().getCoordinates();
+                for(Coordinate c : coords) {
+                    if(!c.equals3D(nextStateCoord) && !c.equals3D(peek)) {
+                        double dot = Vector3D.dot(peek, nextStateCoord, c, nextStateCoord);
+                        if(dot > 0) {
+                            c = GeometryUtil.getNoisedCoordinate(c, 1, 3);
+                            localPath.add(c);
+                        }
+                    }
+                }
+                
+                nextStateCoord = GeometryUtil.getNoisedCoordinate(nextStateCoord, 1, 3);
+                localPath.add(nextStateCoord);
+                }
+                next = localPath.poll();
+            //} else {
+            //    next = GeometryUtil.getRandomPoint(getCurrentState().getDuality());
+            //}
         }
         
         double totalDist = mo.getVelocity() * time;
@@ -139,6 +147,7 @@ public class FixedWayPointNG implements Movement {
             nextStep = next;
             if(localPath.isEmpty()) {
                 next = null;
+                mo.setCurrentCellSpace(getNextState().getDuality());
                 idx++;
             } else {
                 next = localPath.poll();

@@ -14,12 +14,15 @@ import org.eclipse.swt.widgets.DateTime;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
 
 import edu.pnu.io.SimpleIndoorGMLImporter;
 import edu.pnu.model.SpaceLayer;
@@ -181,6 +184,24 @@ public class Main {
         
         dateTime = new DateTime(shell, SWT.BORDER);
         new Label(shell, SWT.NONE);
+        
+        Menu popupMenu = new Menu(shell, SWT.BAR);
+        MenuItem fileItem = new MenuItem(popupMenu, SWT.CASCADE);
+        fileItem.setText("File");
+        MenuItem refreshItem = new MenuItem(popupMenu, SWT.NONE);
+        refreshItem.setText("Refresh");
+        MenuItem deleteItem = new MenuItem(popupMenu, SWT.NONE);
+        deleteItem.setText("Delete");
+
+        Menu newMenu = new Menu(popupMenu);
+        fileItem.setMenu(newMenu);
+
+        MenuItem shortcutItem = new MenuItem(newMenu, SWT.NONE);
+        shortcutItem.setText("Shortcut");
+        MenuItem iconItem = new MenuItem(newMenu, SWT.NONE);
+        iconItem.setText("Icon");
+        
+        shell.setMenuBar(popupMenu);
         
         shell.open();
         shell.layout();

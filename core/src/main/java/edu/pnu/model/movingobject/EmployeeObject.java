@@ -24,12 +24,18 @@
  */
 package edu.pnu.model.movingobject;
 
+import java.util.Random;
+
 import org.apache.log4j.Logger;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 import edu.pnu.core.Generator;
+import edu.pnu.model.History;
 import edu.pnu.model.dual.State;
 import edu.pnu.movement.FixedWayPointNG;
 import edu.pnu.movement.Movement;
+import edu.pnu.movement.RandomWalk;
 import edu.pnu.movement.Stop;
 
 /**
@@ -46,6 +52,7 @@ public class EmployeeObject extends MovingObject {
         super(gen, start);
         this.destination = destination;
         movement = getDefaultMovement();
+        life = new Random().nextInt(200) + 1500;
     }
     
     public Movement getDefaultMovement() {
@@ -53,11 +60,16 @@ public class EmployeeObject extends MovingObject {
     }
     
     public Movement getNextMovement() {
-        return new Stop();
+        return new RandomWalk(this);
     }
     
     public Movement getTerminateMovement() {
-        return new Stop();
+        return new FixedWayPointNG(gen.getSpaceLayer(), this, start);
     }
     
+    protected History createHistory(double remain, Coordinate c) {
+        History h = new History(gen.getClock().getTime() - remain, c);
+        h.setUserData("TYPE", 1);
+        return h;
+    }
 }

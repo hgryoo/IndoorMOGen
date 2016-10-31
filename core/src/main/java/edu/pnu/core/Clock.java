@@ -29,7 +29,7 @@ package edu.pnu.core;
  *
  */
 public class Clock {
-    private static long clockTime = 0;
+    private static double clockTime = 0;
     private static Clock clock = null;
     
     private Clock() {
@@ -43,7 +43,7 @@ public class Clock {
             return clock;
     }
 
-    public long getTime() {
+    public double getTime() {
             return clockTime;
     }
 
@@ -51,11 +51,11 @@ public class Clock {
             return String.format("%." + decimals + "f", clockTime);
     }
     
-    public void advance(long time) {
+    public void advance(double time) {
             clockTime += time;
     }
     
-    public void setTime(long time) {
+    public void setTime(double time) {
             clockTime = time;
     }
     

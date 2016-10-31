@@ -49,8 +49,8 @@ import edu.pnu.movement.Stop;
 public class Generator {
     private static final Logger LOGGER = Logger.getLogger(Generator.class.getName());
     
-    public static final long SAMPLING = 1;
-    public static final long END = 7200;
+    public static final double SAMPLING = 1.0f;
+    public static final double END = 1800;
     
     private Date startTime;
     private List<State> entrances = new ArrayList<State>();
@@ -91,23 +91,31 @@ public class Generator {
     }
 
     public boolean advance() {
-        long remaining = END - clock.getTime();
-        if(remaining > 0) {
+        double remaining = END - clock.getTime();
+        
+        if(moList.size() > 0 && moList.size() == dead.size()) {
+            return false;
+        }
+        
+        //if(moList.size() == dead.size()) {
             clock.advance(SAMPLING);
             LOGGER.info("Advanced Clock : " + clock.getTime());
             
             for(MovingObject m : moList) {
-                if(!dead.contains(m)) {
+                if(!m.getDead()) {
                     m.update(SAMPLING);
+                }
+                else {
+                    dead.add(m);
                 }
                 /*if(m.getMovement() instanceof Stop) {
                     dead.add(m);
                 }*/
             }
             return true;
-        } else {
+        /*} else {
             return false;
-        }
+        }*/
     }
     
     public void addMovingObject(MovingObject mo) {

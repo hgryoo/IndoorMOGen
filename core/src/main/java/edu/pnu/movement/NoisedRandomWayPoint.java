@@ -65,7 +65,7 @@ public class NoisedRandomWayPoint extends AbstractWayPoint {
         return coordinates.get(randNumber);
     }
     
-    public Coordinate getNext(MovingObject mo, long time) {
+    public Coordinate getNext(MovingObject mo, double time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             

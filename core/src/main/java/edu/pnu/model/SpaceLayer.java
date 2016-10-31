@@ -66,7 +66,9 @@ public class SpaceLayer implements CellSpaceIndex {
     
     /* entrances set */
     protected Set<State> entrances = new HashSet<State>();
+    
     protected Map<String, List<State>> usageMap = new HashMap<String, List<State>>();
+    protected Map<String, List<State>> sectionMap = new HashMap<String, List<State>>();
     
     public SpaceLayer() {
         nodes = new ArrayList<State>();
@@ -133,12 +135,13 @@ public class SpaceLayer implements CellSpaceIndex {
                     usageMap.put(usage, new ArrayList<State>());
                 }
                 usageMap.get(usage).add(c.getDuality());
-            } else if(userData.containsKey("SECTION")) {
+            }
+            if(userData.containsKey("SECTION")) {
                 String section = (String) userData.get("SECTION");
-                if(!usageMap.containsKey(section)) {
-                    usageMap.put(section, new ArrayList<State>());
+                if(!sectionMap.containsKey(section)) {
+                    sectionMap.put(section, new ArrayList<State>());
                 }
-                usageMap.get(section).add(c.getDuality());
+                sectionMap.get(section).add(c.getDuality());
             }
         }
     }
@@ -152,6 +155,14 @@ public class SpaceLayer implements CellSpaceIndex {
     
     public List<State> getNodes() {
         return nodes;
+    }
+    
+    public List<State> getNodesByUsage(String usage) {
+        return usageMap.get(usage);
+    }
+    
+    public List<State> getNodesBySection(String section) {
+        return sectionMap.get(section);
     }
     
     public List<Transition> getEdges() {
@@ -205,10 +216,10 @@ public class SpaceLayer implements CellSpaceIndex {
         }
         polygonIdx.build();
         
-        for(CellSpace c : cells) {
-            List<Triangle> triangles = c.getTriangles();
+        /*for(CellSpace c : cells) {
+            List<Polygon> triangles = c.getTriangles();
             System.out.println();
-        }
+        }*/
     }
     
     public CellSpace getCellSpace(Coordinate c) {

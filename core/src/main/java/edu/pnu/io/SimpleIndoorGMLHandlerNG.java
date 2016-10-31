@@ -180,6 +180,11 @@ public class SimpleIndoorGMLHandlerNG extends DefaultHandler {
             userData = new HashMap<Object, Object>();
             for(String s : ds) {
                 String[] key_value = s.split("=");
+                
+                if(key_value.length != 2) {
+                    throw new IllegalArgumentException("description form invalid");
+                }
+                
                 String key = key_value[0].toUpperCase();
                 String value = key_value[1].toUpperCase();
                 userData.put(key, value);

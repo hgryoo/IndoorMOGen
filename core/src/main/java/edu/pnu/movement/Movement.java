@@ -33,5 +33,5 @@ import edu.pnu.model.movingobject.MovingObject;
  *
  */
 public interface Movement {
-    Coordinate getNext(MovingObject movingObject, long time);
+    Coordinate getNext(MovingObject movingObject, double time);
 }

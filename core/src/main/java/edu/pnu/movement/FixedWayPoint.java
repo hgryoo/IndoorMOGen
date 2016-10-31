@@ -54,14 +54,14 @@ public class FixedWayPoint extends AbstractWayPoint {
         this.waypoint = wayPoint;
     }
     
-    public Coordinate getNext(MovingObject mo, long time) {
+    public Coordinate getNext(MovingObject mo, double time) {
         if(finder == null) {
             finder = new DijkstraPathFinder(graph);
             //TODO START�� END�� State�� Coordinate�̾�� �Ѵ�.
             Coordinate end = graph.getStateIndex(getWaypoint()).getPoint().getCoordinate();
             List<Coordinate> pathCoords = finder.getShortestPath(mo.getCurrentPosition(), end);
             if(pathCoords.isEmpty()) {
-                pathCoords = mo.getPossibleEntrance(mo.getCurrentPosition());
+                //pathCoords = mo.getPossibleEntrance(mo.getCurrentPosition());
                 
                 if(pathCoords.isEmpty()) {
                     LOGGER.fatal("DijkstraPathFinder can not found the destiantion");

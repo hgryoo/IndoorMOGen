@@ -24,11 +24,15 @@
  */
 package core;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import com.vividsolutions.jts.operation.distance3d.Distance3DOp;
 
 import edu.pnu.core.Generator;
 import edu.pnu.io.SimpleIndoorGMLImporter;
@@ -37,6 +41,8 @@ import edu.pnu.model.SpaceLayer;
 import edu.pnu.model.dual.State;
 import edu.pnu.model.movingobject.EmployeeObject;
 import edu.pnu.model.movingobject.MovingObject;
+import edu.pnu.model.primal.CellSpace;
+import edu.pnu.util.StateDijkstraPathFinder;
 
 /**
  * @author hgryoo
@@ -48,14 +54,28 @@ private SpaceLayer layer;
     
     @Before
     public void setUp() throws Exception {
-        SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_LWM_2D.gml");
+        SimpleIndoorGMLImporter importer = new SimpleIndoorGMLImporter("src/main/resources/SAMPLE_DATA_LWM_3D.gml");
         layer = importer.getSpaceLayer();
     }
     
-    private State getRandomState() {
-        int stateSize = layer.getNodes().size();
-        int randNumber = new Random().nextInt(stateSize - 1);
-        return layer.getNodes().get(randNumber);
+    private State getRandomState(State s) {
+        List<State> sameSection = layer.getNodesBySection(
+                (String) s.getDuality().getUserData().get("SECTION"));
+        List<State> roomStates = layer.getNodesByUsage("ROOM");
+        List<State> states = new ArrayList<State>(sameSection);
+        states.retainAll(roomStates);
+        
+        int stateSize = states.size();
+        
+        StateDijkstraPathFinder finder = new StateDijkstraPathFinder(layer);
+        State random = null;
+        List path = null;
+        do {
+            int randNumber = new Random().nextInt(stateSize - 1);
+            random = states.get(randNumber);
+            path = finder.getShortestPath(s, random);
+        } while(path.size() == 0);
+        return random;
     }
     
     @Test
@@ -64,9 +84,9 @@ private SpaceLayer layer;
 
         Iterator sit = layer.getEntrances().iterator();
         while(sit.hasNext()) {
-            State s = (State) sit.next();
-            State random = getRandomState();
-            MovingObject mo = new EmployeeObject(gen, s, random);
+            State ent = (State) sit.next();
+            State random = getRandomState(ent);
+            MovingObject mo = new EmployeeObject(gen, ent, random);
             gen.addMovingObject(mo);
         }
         
@@ -77,16 +97,16 @@ private SpaceLayer layer;
         int count = 0;
         while(gen.advance()) {
             
-            if(count < 10) {
+            /*if(count < 10) {
                 sit = layer.getEntrances().iterator();
                 while(sit.hasNext()) {
                     State s = (State) sit.next();
-                    State random = getRandomState();
+                    State random = getRandomState(s);
                     MovingObject mo = new EmployeeObject(gen, s, random);
                     gen.addMovingObject(mo);
                 }
             }
-            count++;
+            count++;*/
             /*if(new Random().nextInt(10) < 4 && idx < 100) {
                 for(State s : ents) {
                     MovingObject m1 = new MovingObject(gen, s);

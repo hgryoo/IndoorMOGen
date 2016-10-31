@@ -33,7 +33,7 @@ import edu.pnu.model.movingobject.MovingObject;
  *
  */
 public class Stop implements Movement {
-    public Coordinate getNext(MovingObject mo, long time) {
+    public Coordinate getNext(MovingObject mo, double time) {
         return mo.getCurrentPosition();
     }
 }
